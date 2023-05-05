@@ -8,6 +8,7 @@ using S6_BDI_probleme;
 string connectionStringAdmin = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;";
 string connectionStringUser = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;";
 string connectionString = connectionStringUser;
+string email = "";
 Console.WriteLine("Do you want to connect as admin or bozo?");
 string user = Console.ReadLine();
 if (user == "admin")
@@ -23,7 +24,6 @@ MySqlConnection sqlConnection = new(connectionString);
 using (MySqlConnection connection = sqlConnection)
 {
     connection.Open();
-    string email = "";
     authentication();
     //TODO: Ajouter bool admin dans la table clients et vérifier si l'utilisateur est admin pour stats
     menu();
@@ -354,8 +354,11 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("Enter a personnalized message for the recipient: ");
         string message = Console.ReadLine();
         string status = "CPAV";
+        //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
         int idClients = 1;
+        //TODO: use email var
         int idShops = 1;
+        //TODO: choose shops in the list from db
         string insertQuery = "INSERT INTO orders (message, order_date, delivery_date, status, id_clients, id_addresses, id_shops)" +
             "\r\nVALUES (@message, @orderDate, @deliveryDate, @status, @idClients, @idAddresses, @idShops)";
         using (MySqlCommand command = new(insertQuery, connection))
