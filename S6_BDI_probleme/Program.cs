@@ -357,8 +357,20 @@ using (MySqlConnection connection = sqlConnection)
         //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
         int idClients = 1;
         //TODO: use email var
-        int idShops = 1;
-        //TODO: choose shops in the list from db
+        Console.WriteLine("Enter the id of the shop you want to order from: ");
+        // show list of shops from db with select query
+        selectQuery = "SELECT * FROM shops";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            MySqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                Console.WriteLine($"{reader["id_shops"]} - {reader["city_shops"]}");
+            }
+            reader.Close();
+        }
+        int idShops = Convert.ToInt32(Console.ReadLine());
+
         string insertQuery = "INSERT INTO orders (message, order_date, delivery_date, status, id_clients, id_addresses, id_shops)" +
             "\r\nVALUES (@message, @orderDate, @deliveryDate, @status, @idClients, @idAddresses, @idShops)";
         using (MySqlCommand command = new(insertQuery, connection))
