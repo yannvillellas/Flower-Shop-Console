@@ -87,8 +87,8 @@ CREATE TABLE Orders(
         delivery_date    Date NOT NULL ,
         status           Varchar (50) NOT NULL ,
         id_clients       Int NOT NULL ,
-        id_shops         Int NOT NULL ,
-        id_addresses     Int NOT NULL
+        id_addresses     Int NOT NULL ,
+        id_shops         Int NOT NULL
 	,CONSTRAINT Orders_PK PRIMARY KEY (id_orders)
 )ENGINE=InnoDB;
 

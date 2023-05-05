@@ -260,6 +260,7 @@ using (MySqlConnection connection = sqlConnection)
                 enterSpecialRequest();
                 break;
             case "5":
+                createOrder();
                 validateBouquet(personalizedBouquet);
                 break;
             case "0":
