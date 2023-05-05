@@ -39,10 +39,8 @@ CREATE TABLE Flowers(
 
 CREATE TABLE Shops(
         id_shops     Int NOT NULL AUTO_INCREMENT,
-        name_shops   Varchar (50) NOT NULL ,
-        city_shops   Varchar (50) NOT NULL ,
-        address_shops Varchar (50) NOT NULL
-	,CONSTRAINT Shops_PK PRIMARY KEY (id_shops)
+        city_shops   Varchar (50) NOT NULL
+       ,CONSTRAINT Shops_PK PRIMARY KEY (id_shops)
 )ENGINE=InnoDB;
 
 
@@ -88,8 +86,10 @@ CREATE TABLE Orders(
         status           Varchar (50) NOT NULL ,
         id_clients       Int NOT NULL ,
         id_addresses     Int NOT NULL ,
-        id_shops         Int NOT NULL
-	,CONSTRAINT Orders_PK PRIMARY KEY (id_orders)
+        id_shops         Int NOT NULL,
+        id_standard 	 Int,
+        id_personalized  Int
+        ,CONSTRAINT Orders_PK PRIMARY KEY (id_orders)
 )ENGINE=InnoDB;
 
     
@@ -102,8 +102,7 @@ CREATE TABLE Personalized(
         price_personalized       Int NOT NULL ,
         description_personalized Varchar (400) NOT NULL ,
         flowers_personalized     Varchar (400) NOT NULL ,
-        accesories_personalized  Varchar (400) NOT NULL ,
-        id_orders                Int NOT NULL
+        accesories_personalized  Varchar (400) NOT NULL 
 	,CONSTRAINT personalized_PK PRIMARY KEY (id_personalized)
 )ENGINE=InnoDB;
 
@@ -115,10 +114,10 @@ CREATE TABLE Personalized(
 CREATE TABLE Standard(
         id_standard          Int NOT NULL AUTO_INCREMENT,
         name_bouquet         Varchar (50) NOT NULL ,
-        description_standard Varchar (50) NOT NULL ,
+        description_standard Varchar (500) NOT NULL ,
         price_standard       Int NOT NULL ,
-        id_orders            Int NOT NULL
-	,CONSTRAINT standard_PK PRIMARY KEY (id_standard)
+        category             Varchar(50)
+        ,CONSTRAINT standard_PK PRIMARY KEY (id_standard)
 )ENGINE=InnoDB;
 
 
@@ -189,3 +188,27 @@ ALTER TABLE Clients
 	ADD CONSTRAINT Clients_Addresses0_FK
 	FOREIGN KEY (id_addresses)
 	REFERENCES Addresses(id_addresses);
+
+INSERT INTO Standard (id_standard, name_bouquet, description_standard, price_standard, category)
+VALUES 
+(1,"Gros Merci", "Arrangement floral avec marguerites et verdure",45,"Toute ocassion"),
+(2,"L’amoureux","Arrangement floral avec roses blanches et roses rouges",65,"St_Valentin"),
+(3,"L'Exotique","Arrangement floral avec ginger, oiseaux du paradis,roses et genet", 40, "Toute ocassion"),
+(4,"Maman", "Arrangement floral avec gerbera, roses blanches, lys et alstroméria",80,"Fête des mères"),
+(5,"Vive la mariée","Arrangement floral avec lys et orchidées", 120, "Mariage");
+INSERT INTO Shops (id_shops, city_shops)
+VALUES
+(1, "Castres"),
+(2, "Toulouse"),
+(3, "Albi"),
+(4, "Montpellier"),
+(5, "Paris"),
+(6, "Lyon"),
+(7, "Marseille"),
+(8, "Bordeaux"),
+(9, "Nantes"),
+(10, "Lille");
+
+ 
+
+
