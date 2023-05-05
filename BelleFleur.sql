@@ -1,8 +1,6 @@
 #------------------------------------------------------------
 #        Script MySQL.
 #------------------------------------------------------------
-
-
 #------------------------------------------------------------
 # Table: Accessories
 #------------------------------------------------------------
@@ -173,12 +171,18 @@ ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Addresses2_FK
 	FOREIGN KEY (id_addresses)
 	REFERENCES Addresses(id_addresses);
-
+ALTER TABLE Orders
+	ADD CONSTRAINT Orders_Standard3_FK
+	FOREIGN KEY (id_standard)
+	REFERENCES Standard(id_standard);
+ALTER TABLE Orders
+	ADD CONSTRAINT Orders_Personalized4_FK
+	FOREIGN KEY (id_personalized)
+	REFERENCES Personalized(id_personalized);
 ALTER TABLE Orders 
 	ADD CONSTRAINT Orders_Addresses0_AK
 	FOREIGN KEY (id_addresses)
 	REFERENCES Addresses(id_addresses);
-    
 ALTER TABLE Stocks
 	ADD CONSTRAINT Stocks_Shops0_FK
 	FOREIGN KEY (id_shops)
