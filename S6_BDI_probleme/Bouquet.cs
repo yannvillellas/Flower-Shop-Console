@@ -43,7 +43,7 @@ namespace S6_BDI_probleme
             set => description = value;
         }
         
-        public List<string> strings
+        public List<string> Flowers
         {
             get => flowers;
             set => flowers = value;

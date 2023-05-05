@@ -26,6 +26,7 @@ using (MySqlConnection connection = sqlConnection)
     authentication();
     //TODO: Ajouter bool admin dans la table clients et vérifier si l'utilisateur est admin pour stats
     menu();
+    
 
     void authentication()
     {
@@ -184,11 +185,12 @@ using (MySqlConnection connection = sqlConnection)
     void menu()
     {
         Console.Clear();
+        Console.WriteLine("MENU OPTIONS");
         Console.WriteLine("1. Display existing bouquets of flowers");
         Console.WriteLine("2. Personnalize your bouquet");
         Console.WriteLine("3. Display your order history");
         Console.WriteLine("4. Display your loyalty status");
-        Console.WriteLine("5. Exit");
+        Console.WriteLine("0. Exit");
         Console.Write("Enter your choice: ");
         string choice = Console.ReadLine();
         switch (choice)
@@ -205,7 +207,7 @@ using (MySqlConnection connection = sqlConnection)
             case "4":
                 displayLoyaltyStatus();
                 break;
-            case "5":
+            case "0":
                 Environment.Exit(0);
                 break;
             default:
@@ -229,7 +231,7 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("3. Enter your budget");
         Console.WriteLine("4. Enter a special request");
         Console.WriteLine("5. Validate your bouquet - Be sure to have chosen at least one flower and one accessorie and to have entered a budget. You will not be able to modify your bouquet after validation.");
-        Console.WriteLine("6. Exit");
+        Console.WriteLine("0. Exit");
         Console.Write("Enter your choice: ");
         string choice = Console.ReadLine();
         switch (choice)
@@ -249,7 +251,7 @@ using (MySqlConnection connection = sqlConnection)
             case "5":
                 validateBouquet(personalizedBouquet);
                 break;
-            case "6":
+            case "0":
                 Environment.Exit(0);
                 break;
             default:
@@ -304,7 +306,7 @@ using (MySqlConnection connection = sqlConnection)
     }
     void validateBouquet(Bouquet personalizedBouquet)
     {
-        if (personalizedBouquet.strings.Count == 0 || personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0.0)
+        if (personalizedBouquet.Flowers.Count == 0 || personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0.0)
         {
             Console.WriteLine("You must choose at least one flower and one accessorie and enter a budget. Press any key to continue.");
             Console.ReadKey();
@@ -314,9 +316,20 @@ using (MySqlConnection connection = sqlConnection)
         {
             Console.WriteLine("Bouquet validated. Press any key to continue.");
             Console.ReadKey();
-            menu();
+            createOrder();
         }
     }
+    void createOrder()
+    {
+        Console.Clear();
+        Console.Write("Enter your shipping address. Press any key to continue.");
+        Console.ReadKey();
+        enterAddress();
+        Console.WriteLine("Order created. Press any key to continue.");
+        Console.ReadKey();
+        menu();
+    }
+}
 }
 Console.WriteLine("Press any key to exit.");
 Console.ReadKey();

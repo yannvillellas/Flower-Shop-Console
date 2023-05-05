@@ -81,15 +81,15 @@ CREATE TABLE Clients(
 #------------------------------------------------------------
 
 CREATE TABLE Orders(
-        id_orders       Int NOT NULL AUTO_INCREMENT ,
+        id_orders        Int NOT NULL AUTO_INCREMENT ,
         shipping_address Text NOT NULL ,
-        message         Text NOT NULL ,
-        delivery_date   Date NOT NULL ,
-        order_date      Date NOT NULL ,
-        status          Varchar (50) NOT NULL ,
+        message          Text NOT NULL ,
+        delivery_date    Date NOT NULL ,
+        order_date       Date NOT NULL ,
+        status           Varchar (50) NOT NULL ,
         id_clients       Int NOT NULL ,
         id_shops         Int NOT NULL ,
-        id_addresses       Int NOT NULL
+        id_addresses     Int NOT NULL
 	,CONSTRAINT Orders_PK PRIMARY KEY (id_orders)
 )ENGINE=InnoDB;
 
