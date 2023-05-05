@@ -12,7 +12,7 @@ CREATE DATABASE Fleurs;
 USE Fleurs;
 
 CREATE TABLE Accessories(
-        id_accessories    Int NOT NULL ,
+        id_accessories    Int NOT NULL AUTO_INCREMENT,
         name_accessories  Varchar (50) NOT NULL ,
         price_accessories Int NOT NULL ,
         stock_accessories Int NOT NULL
@@ -25,7 +25,7 @@ CREATE TABLE Accessories(
 #------------------------------------------------------------
 
 CREATE TABLE Flowers(
-        id_flowers    Int NOT NULL ,
+        id_flowers    Int NOT NULL AUTO_INCREMENT,
         name_flowers  Varchar (50) NOT NULL ,
         price_flowers Int NOT NULL ,
         stock_flowers Int NOT NULL
@@ -38,7 +38,7 @@ CREATE TABLE Flowers(
 #------------------------------------------------------------
 
 CREATE TABLE Shops(
-        id_shops     Int NOT NULL ,
+        id_shops     Int NOT NULL AUTO_INCREMENT,
         name_shops   Varchar (50) NOT NULL ,
         city_shops   Varchar (50) NOT NULL ,
         address_shops Varchar (50) NOT NULL
@@ -51,7 +51,7 @@ CREATE TABLE Shops(
 #------------------------------------------------------------
 
 CREATE TABLE Stocks(
-        id_stocks Int NOT NULL ,
+        id_stocks Int NOT NULL AUTO_INCREMENT,
         quantity Int NOT NULL ,
         id_shops  Int NOT NULL
 	,CONSTRAINT Stocks_PK PRIMARY KEY (id_stocks)
@@ -132,11 +132,10 @@ CREATE TABLE Addresses(
         first_name_addresses Varchar (50) NOT NULL ,
         last_name_addresses  Varchar (50) NOT NULL ,
         phone_addresses      Varchar (10) NOT NULL ,
-        name_street       Varchar (100) NOT NULL ,
-        city              Varchar (100) NOT NULL ,
-        zipcode           Int NOT NULL ,
-        number_street     Int NOT NULL ,
-        id_orders         Int NOT NULL
+        city              	 Varchar (100) NOT NULL ,
+        zip_code             Int NOT NULL ,
+        street_number        Int NOT NULL ,
+        street_name          Varchar (100) NOT NULL
 	,CONSTRAINT Addresses_PK PRIMARY KEY (id_addresses)
 )ENGINE=InnoDB;
 

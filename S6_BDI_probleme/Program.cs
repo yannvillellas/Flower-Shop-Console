@@ -159,8 +159,8 @@ using (MySqlConnection connection = sqlConnection)
         Console.Write("Enter street name: ");
         string streetName = Console.ReadLine();
 
-        string insertQuery = "INSERT INTO addresses (first_name_addresses, last_name_addresses, phone_addresses, city, zip_code, street_name, street_number)" +
-            "\r\nVALUES (@firstName, @lastName, @phone, @city, @zipCode, @streetName, @streetNumber);";
+        string insertQuery = "INSERT INTO addresses (first_name_addresses, last_name_addresses, phone_addresses, city, zip_code, street_number, street_name)" +
+            "\r\nVALUES (@firstName, @lastName, @phone, @city, @zipCode, @streetNumber, @streetName);";
         using (MySqlCommand command = new(insertQuery, connection))
         {
             command.Parameters.AddWithValue("@firstName", newClient.FirstName);
@@ -168,8 +168,8 @@ using (MySqlConnection connection = sqlConnection)
             command.Parameters.AddWithValue("@phone", newClient.PhoneNumber);
             command.Parameters.AddWithValue("@city", city);
             command.Parameters.AddWithValue("@zipCode", zipCode);
-            command.Parameters.AddWithValue("@streetName", streetName);
             command.Parameters.AddWithValue("@streetNumber", streetNumber);
+            command.Parameters.AddWithValue("@streetName", streetName);
             debugRowsAffected(command);
         }
         Console.WriteLine("Address created. Press any key to continue.");
