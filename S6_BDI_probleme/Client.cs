@@ -33,7 +33,15 @@ namespace S6_BDI_probleme
             this.email = email;
             this.password = "";
         }
-        
+        public Client()
+        {
+            this.firstName = "";
+            this.lastName = "";
+            this.phoneNumber = "";
+            this.email = "";
+            this.password = "";
+        }
+
         public string FirstName
         {
             get => firstName;

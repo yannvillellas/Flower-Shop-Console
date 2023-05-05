@@ -27,8 +27,8 @@ namespace S6_BDI_probleme
             this.name = "";
             this.description = "";
             this.price = 0;
-            this.flowers = new List<string>();
-            this.accessories = new List<string>();
+            this.flowers = new List<string> { "test", "tes t" };
+            this.accessories = new List<string> { "testa", "df" };
         }
 
         public string Name
@@ -63,7 +63,7 @@ namespace S6_BDI_probleme
 
         public override string ToString()
         {
-            return $"Name: {name}\nDescription: {description}\nstrings: {string.Join(", ", flowers)}\nAccessories: {string.Join(", ", accessories)}\nPrice: {price}";
+            return $"Name: {name}\nDescription: {description}\nflowers: {string.Join(", ", flowers)}\nAccessories: {string.Join(", ", accessories)}\nPrice: {price}";
         }
     }
 }

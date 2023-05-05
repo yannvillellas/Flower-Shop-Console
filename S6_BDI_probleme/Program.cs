@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Net;
 using MySql.Data.MySqlClient;
 using S6_BDI_probleme;
 
@@ -26,7 +27,7 @@ using (MySqlConnection connection = sqlConnection)
     authentication();
     //TODO: Ajouter bool admin dans la table clients et vérifier si l'utilisateur est admin pour stats
     menu();
-    
+
 
     void authentication()
     {
@@ -148,8 +149,18 @@ using (MySqlConnection connection = sqlConnection)
         Console.Clear();
         authentication();
     }
-    void enterAddress(Client newClient)
+    void enterAddress(Client user, bool isClient = true)
     {
+        if (!isClient)
+        {
+            Console.Clear();
+            Console.WriteLine("Enter the first name of the recipient: ");
+            user.FirstName = Console.ReadLine();
+            Console.WriteLine("Enter the last name of the recipient: ");
+            user.LastName = Console.ReadLine();
+            Console.WriteLine("Enter the phone number of the recipient: ");
+            user.PhoneNumber = Console.ReadLine();
+        }
         Console.Clear();
         Console.Write("Enter city: ");
         string city = Console.ReadLine();
@@ -164,9 +175,9 @@ using (MySqlConnection connection = sqlConnection)
             "\r\nVALUES (@firstName, @lastName, @phone, @city, @zipCode, @streetNumber, @streetName);";
         using (MySqlCommand command = new(insertQuery, connection))
         {
-            command.Parameters.AddWithValue("@firstName", newClient.FirstName);
-            command.Parameters.AddWithValue("@lastName", newClient.LastName);
-            command.Parameters.AddWithValue("@phone", newClient.PhoneNumber);
+            command.Parameters.AddWithValue("@firstName", user.FirstName);
+            command.Parameters.AddWithValue("@lastName", user.LastName);
+            command.Parameters.AddWithValue("@phone", user.PhoneNumber);
             command.Parameters.AddWithValue("@city", city);
             command.Parameters.AddWithValue("@zipCode", zipCode);
             command.Parameters.AddWithValue("@streetNumber", streetNumber);
@@ -237,7 +248,7 @@ using (MySqlConnection connection = sqlConnection)
         switch (choice)
         {
             case "1":
-                choosestrings();
+                choosesFlowers();
                 break;
             case "2":
                 chooseAccessories();
@@ -270,7 +281,7 @@ using (MySqlConnection connection = sqlConnection)
     {
         
     }
-    void choosestrings()
+    void choosesFlowers()
     {
         
     }
@@ -303,6 +314,9 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Write("Enter your special request: ");
         string specialRequest = Console.ReadLine();
+        Console.WriteLine("Special request entered. Press any key to continue.");
+        Console.ReadKey();
+        personalizeBouquet();
     }
     void validateBouquet(Bouquet personalizedBouquet)
     {
@@ -321,15 +335,58 @@ using (MySqlConnection connection = sqlConnection)
     }
     void createOrder()
     {
+        Client recipient = new();
+        int idAddresses = 0;
+        
         Console.Clear();
         Console.Write("Enter your shipping address. Press any key to continue.");
         Console.ReadKey();
-        enterAddress();
+        enterAddress(recipient, false);
+        string selectQuery = "SELECT id_addresses FROM addresses ORDER BY id_addresses DESC LIMIT 1";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            idAddresses = Convert.ToInt32(command.ExecuteScalar());
+        }
+        DateTime orderDateDateTime = DateTime.Now;
+        DateTime deliveryDateDateTime = new();
+        enterDateTime(deliveryDateDateTime);
+        Console.WriteLine("Enter a personnalized message for the recipient: ");
+        string message = Console.ReadLine();
+        string status = "CPAV";
+        int idClients = 1;
+        int idShops = 1;
+        string insertQuery = "INSERT INTO orders (message, order_date, delivery_date, status, id_clients, id_addresses, id_shops)" +
+            "\r\nVALUES (@message, @orderDate, @deliveryDate, @status, @idClients, @idAddresses, @idShops)";
+        using (MySqlCommand command = new(insertQuery, connection))
+        {
+            command.Parameters.AddWithValue("@message", message);
+            command.Parameters.AddWithValue("@orderDate", orderDateDateTime);
+            command.Parameters.AddWithValue("@deliveryDate", deliveryDateDateTime);
+            command.Parameters.AddWithValue("@status", status);
+            command.Parameters.AddWithValue("@idClients", idClients);
+            command.Parameters.AddWithValue("@idAddresses", idAddresses);
+            command.Parameters.AddWithValue("@idShops", idShops);
+            command.ExecuteNonQuery();
+        }
         Console.WriteLine("Order created. Press any key to continue.");
         Console.ReadKey();
         menu();
     }
-}
+    void enterDateTime(DateTime deliveryDateDateTime)
+    {
+        Console.Write("Enter your delivery date (YYYY-MM-DD): ");
+        string deliveryDate = Console.ReadLine();
+        try
+        {
+            deliveryDateDateTime = Convert.ToDateTime(deliveryDate);
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid date. You must enter a date in the format YYYY-MM-DD. Press any key to continue.");
+            Console.ReadKey();
+            enterDateTime(deliveryDateDateTime);
+        }
+    }
 }
 Console.WriteLine("Press any key to exit.");
 Console.ReadKey();
