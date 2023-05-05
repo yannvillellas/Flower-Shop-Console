@@ -38,11 +38,11 @@ CREATE TABLE Flowers(
 #------------------------------------------------------------
 
 CREATE TABLE Shops(
-        id_shop     Int NOT NULL ,
-        name_shop   Varchar (50) NOT NULL ,
-        city_shop   Varchar (50) NOT NULL ,
-        address_shop Varchar (50) NOT NULL
-	,CONSTRAINT Shops_PK PRIMARY KEY (id_shop)
+        id_shops     Int NOT NULL ,
+        name_shops   Varchar (50) NOT NULL ,
+        city_shops   Varchar (50) NOT NULL ,
+        address_shops Varchar (50) NOT NULL
+	,CONSTRAINT Shops_PK PRIMARY KEY (id_shops)
 )ENGINE=InnoDB;
 
 
@@ -51,10 +51,10 @@ CREATE TABLE Shops(
 #------------------------------------------------------------
 
 CREATE TABLE Stocks(
-        id_stock Int NOT NULL ,
+        id_stocks Int NOT NULL ,
         quantity Int NOT NULL ,
-        id_shop  Int NOT NULL
-	,CONSTRAINT Stocks_PK PRIMARY KEY (id_stock)
+        id_shops  Int NOT NULL
+	,CONSTRAINT Stocks_PK PRIMARY KEY (id_stocks)
 )ENGINE=InnoDB;
 
 
@@ -63,7 +63,7 @@ CREATE TABLE Stocks(
 #------------------------------------------------------------
 
 CREATE TABLE Clients(
-        id_client     Int NOT NULL AUTO_INCREMENT,
+        id_clients     Int NOT NULL AUTO_INCREMENT,
         first_name    Varchar (50) NOT NULL ,
         last_name     Varchar (50) NOT NULL ,
         phone         Varchar (10) NOT NULL ,
@@ -71,12 +71,13 @@ CREATE TABLE Clients(
         password      Varchar (100) NOT NULL ,
         loyalty       Varchar (50) NOT NULL ,
         admin         Bool NOT NULL ,
-        CONSTRAINT Clients_PK PRIMARY KEY (id_client)
+        id_addresses  Int NOT NULL,
+        CONSTRAINT Clients_PK PRIMARY KEY (id_clients)
 )ENGINE=InnoDB;
 
 
 #------------------------------------------------------------
-# Table: Order
+# Table: Orders
 #------------------------------------------------------------
 
 CREATE TABLE Orders(
@@ -86,25 +87,25 @@ CREATE TABLE Orders(
         delivery_date   Date NOT NULL ,
         order_date      Date NOT NULL ,
         status          Varchar (50) NOT NULL ,
-        id_client       Int NOT NULL ,
-        id_shop         Int NOT NULL ,
-        id_address       Int NOT NULL
+        id_clients       Int NOT NULL ,
+        id_shops         Int NOT NULL ,
+        id_addresses       Int NOT NULL
 	,CONSTRAINT Orders_PK PRIMARY KEY (id_orders)
 )ENGINE=InnoDB;
 
-
+    
 #------------------------------------------------------------
 # Table: personalized
 #------------------------------------------------------------
 
-CREATE TABLE Personalizeds(
+CREATE TABLE Personalized(
         id_personalized          Int NOT NULL AUTO_INCREMENT,
         price_personalized       Int NOT NULL ,
         description_personalized Varchar (400) NOT NULL ,
         flowers_personalized     Varchar (400) NOT NULL ,
         accesories_personalized  Varchar (400) NOT NULL ,
         id_orders                Int NOT NULL
-	,CONSTRAINT personalizeds_PK PRIMARY KEY (id_personalized)
+	,CONSTRAINT personalized_PK PRIMARY KEY (id_personalized)
 )ENGINE=InnoDB;
 
 
@@ -112,13 +113,13 @@ CREATE TABLE Personalizeds(
 # Table: standard
 #------------------------------------------------------------
 
-CREATE TABLE Standards(
+CREATE TABLE Standard(
         id_standard          Int NOT NULL AUTO_INCREMENT,
         name_bouquet         Varchar (50) NOT NULL ,
         description_standard Varchar (50) NOT NULL ,
         price_standard       Int NOT NULL ,
         id_orders            Int NOT NULL
-	,CONSTRAINT standards_PK PRIMARY KEY (id_standard)
+	,CONSTRAINT standard_PK PRIMARY KEY (id_standard)
 )ENGINE=InnoDB;
 
 
@@ -127,16 +128,16 @@ CREATE TABLE Standards(
 #------------------------------------------------------------
 
 CREATE TABLE Addresses(
-        id_address         Int NOT NULL AUTO_INCREMENT ,
-        first_name_address Varchar (50) NOT NULL ,
-        last_name_address  Varchar (50) NOT NULL ,
-        phone_address      Varchar (10) NOT NULL ,
+        id_addresses         Int NOT NULL AUTO_INCREMENT ,
+        first_name_addresses Varchar (50) NOT NULL ,
+        last_name_addresses  Varchar (50) NOT NULL ,
+        phone_addresses      Varchar (10) NOT NULL ,
         name_street       Varchar (100) NOT NULL ,
         city              Varchar (100) NOT NULL ,
         zipcode           Int NOT NULL ,
         number_street     Int NOT NULL ,
         id_orders         Int NOT NULL
-	,CONSTRAINT Adresses_PK PRIMARY KEY (id_adress)
+	,CONSTRAINT Addresses_PK PRIMARY KEY (id_addresses)
 )ENGINE=InnoDB;
 
 
@@ -161,37 +162,32 @@ CREATE TABLE contain(
 	,CONSTRAINT contain_PK PRIMARY KEY (id_flowers,id_standard)
 )ENGINE=InnoDB;
 
-
-
-
-ALTER TABLE Stocks
-	ADD CONSTRAINT Stocks_Shops0_FK
-	FOREIGN KEY (id_shop)
-	REFERENCES Shops(id_shop);
-
-ALTER TABLE Clients
-	ADD CONSTRAINT Clients_Addresses0_FK
-	FOREIGN KEY (id_address)
-	REFERENCES Adresses(id_address);
-
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Clients0_FK
-	FOREIGN KEY (id_client)
-	REFERENCES Clients(id_client);
+	FOREIGN KEY (id_clients)
+	REFERENCES Clients(id_clients);
 
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Shops1_FK
-	FOREIGN KEY (id_shop)
-	REFERENCES Shops(id_shop);
+	FOREIGN KEY (id_shops)
+	REFERENCES Shops(id_shops);
 
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Addresses2_FK
-	FOREIGN KEY (id_address)
-	REFERENCES Adresses(id_address);
+	FOREIGN KEY (id_addresses)
+	REFERENCES Addresses(id_addresses);
 
 ALTER TABLE Orders 
 	ADD CONSTRAINT Orders_Addresses0_AK
-	FOREIGN KEY (id_address)
-	REFERENCES Adresses(id_address);
+	FOREIGN KEY (id_addresses)
+	REFERENCES Addresses(id_addresses);
+    
+ALTER TABLE Stocks
+	ADD CONSTRAINT Stocks_Shops0_FK
+	FOREIGN KEY (id_shops)
+	REFERENCES Shops(id_shops);
 
-
+ALTER TABLE Clients
+	ADD CONSTRAINT Clients_Addresses0_FK
+	FOREIGN KEY (id_addresses)
+	REFERENCES Addresses(id_addresses);
