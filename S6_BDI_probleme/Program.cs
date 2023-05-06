@@ -260,7 +260,7 @@ using (MySqlConnection connection = sqlConnection)
                 enterSpecialRequest();
                 break;
             case "5":
-                createOrder();
+                createOrder(); //to change because it neeeds to verif if correct options
                 validateBouquet(personalizedBouquet);
                 break;
             case "0":
@@ -361,15 +361,14 @@ using (MySqlConnection connection = sqlConnection)
         string status = "CPAV";
         //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
         
-        int idClients = 0;
-        //TODO: use email var
-        selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
-        using (MySqlCommand command = new(selectQuery, connection))
-        {
-            command.Parameters.AddWithValue("@email",
-                recipient.Email);
-            idClients = Convert.ToInt32(command.ExecuteScalar());
-        }
+        int idClients = 1;
+        //selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
+        //using (MySqlCommand command = new(selectQuery, connection))
+        //{
+        //    command.Parameters.AddWithValue("@email",
+        //        recipient.Email); //ERROR TO CORRECT
+        //    idClients = Convert.ToInt32(command.ExecuteScalar());
+        //}
         
         Console.WriteLine("Enter the id of the shop you want to order from: ");
         selectQuery = "SELECT * FROM shops";
