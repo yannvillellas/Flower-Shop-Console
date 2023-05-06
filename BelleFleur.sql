@@ -212,7 +212,21 @@ VALUES
 (8, "Bordeaux"),
 (9, "Nantes"),
 (10, "Lille");
-
- 
-
+INSERT INTO Flowers (name_flowers,price_flowers,stock_flowers) 
+VALUES
+("Gerbera", 5, "à l'année"),
+("Ginger",4, "à l'année"),
+("Glaïeul",1 , "mai à novembre"),
+("Marguerite", 2.25 , "à l'année"),
+("Rose rouge", 2.50 ," à l'année"),
+("Orchidée",8 ,"à l'année"),
+("Tulipe ", 1.50 , "de mars à mai"),
+("Lys" , 3.50 ,"à l'année"),
+("Jacinthe",1.75,"de décembre à mars"),
+("Œillet",2, "à l'année"),
+("Pivoine",6 , "de mai à juillet"),
+("Iris",2.75,"de mars à juin"),
+("Souci", 1.25,"de juin à septembre"),
+("Œillet d'Inde",1.50, "de juin à octobre"),
+("Primevère", 1.50 , "de février à avril");
 
