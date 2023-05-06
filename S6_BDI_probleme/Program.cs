@@ -336,10 +336,11 @@ using (MySqlConnection connection = sqlConnection)
     }
     void createOrder()
     {
-        Client recipient = new();
-        int idAddresses = 0;
-        
         Console.Clear();
+        
+        Client recipient = new();
+        
+        int idAddresses = 0;
         Console.Write("Enter your shipping address. Press any key to continue.");
         Console.ReadKey();
         enterAddress(recipient, false);
@@ -348,17 +349,29 @@ using (MySqlConnection connection = sqlConnection)
         {
             idAddresses = Convert.ToInt32(command.ExecuteScalar());
         }
+        
         DateTime orderDateDateTime = DateTime.Now;
+        
         DateTime deliveryDateDateTime = new();
         enterDateTime(deliveryDateDateTime);
+        
         Console.WriteLine("Enter a personnalized message for the recipient: ");
         string message = Console.ReadLine();
+        
         string status = "CPAV";
         //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
-        int idClients = 1;
+        
+        int idClients = 0;
         //TODO: use email var
+        selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            command.Parameters.AddWithValue("@email",
+                recipient.Email);
+            idClients = Convert.ToInt32(command.ExecuteScalar());
+        }
+        
         Console.WriteLine("Enter the id of the shop you want to order from: ");
-        // show list of shops from db with select query
         selectQuery = "SELECT * FROM shops";
         using (MySqlCommand command = new(selectQuery, connection))
         {
