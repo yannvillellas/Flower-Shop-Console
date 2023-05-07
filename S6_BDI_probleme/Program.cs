@@ -338,7 +338,7 @@ using (MySqlConnection connection = sqlConnection)
     }
     void validateBouquet(Bouquet personalizedBouquet)
     {
-        string insertQuery = "INSERT INTO personalized (price_personalized, description_personalized, flowers_personalized, accesories_personalized)"+ //to change accesories == accessories
+        string insertQuery = "INSERT INTO personalized (price_personalized, description_personalized, flowers_personalized, accessories_personalized)"+
             "\r\nVALUES (@price_personalized, @description_personalized, @flowers_personalized, @accessories_personalized);";
         using (MySqlCommand command = new(insertQuery, connection))
         {

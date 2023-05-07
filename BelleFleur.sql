@@ -102,7 +102,7 @@ CREATE TABLE Personalized(
         price_personalized       Int NOT NULL ,
         description_personalized Varchar (400) NOT NULL ,
         flowers_personalized     Varchar (400) NOT NULL ,
-        accesories_personalized  Varchar (400) NOT NULL 
+        accessories_personalized  Varchar (400) NOT NULL 
 	,CONSTRAINT personalized_PK PRIMARY KEY (id_personalized)
 )ENGINE=InnoDB;
 
