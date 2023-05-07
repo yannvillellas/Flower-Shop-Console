@@ -26,7 +26,9 @@ CREATE TABLE Flowers(
         id_flowers    Int NOT NULL AUTO_INCREMENT,
         name_flowers  Varchar (50) NOT NULL ,
         price_flowers Int NOT NULL ,
-        stock_flowers Int NOT NULL
+        stock_flowers Int NOT NULL,
+        start_month  Int NOT NULL,
+        end_month  Int NOT NULL
 	,CONSTRAINT Flowers_PK PRIMARY KEY (id_flowers)
 )ENGINE=InnoDB;
 
@@ -212,21 +214,27 @@ VALUES
 (8, "Bordeaux"),
 (9, "Nantes"),
 (10, "Lille");
-INSERT INTO Flowers (name_flowers,price_flowers,stock_flowers) 
+INSERT INTO Flowers (name_flowers,price_flowers,stock_flowers,start_month,end_month) 
 VALUES
-("Gerbera", 5, "à l'année"),
-("Ginger",4, "à l'année"),
-("Glaïeul",1 , "mai à novembre"),
-("Marguerite", 2.25 , "à l'année"),
-("Rose rouge", 2.50 ," à l'année"),
-("Orchidée",8 ,"à l'année"),
-("Tulipe ", 1.50 , "de mars à mai"),
-("Lys" , 3.50 ,"à l'année"),
-("Jacinthe",1.75,"de décembre à mars"),
-("Œillet",2, "à l'année"),
-("Pivoine",6 , "de mai à juillet"),
-("Iris",2.75,"de mars à juin"),
-("Souci", 1.25,"de juin à septembre"),
-("Œillet d'Inde",1.50, "de juin à octobre"),
-("Primevère", 1.50 , "de février à avril");
-
+("Gerbera", 5, 100,1,12),
+("Ginger",4, 100,1,12),
+("Glaïeul",1 , 100,5,11),
+("Marguerite", 2.25 , 100,1,12),
+("Rose rouge", 2.50 ,100,1,12),
+("Orchidée",8 ,100,1,12), 
+("Tulipe", 1.50 , 100,3,5),
+("Lys" , 3.50 ,100,1,12),
+("Jacinthe",1.75,100,12,3),
+("Œillet",2, 100,1,12),
+("Pivoine",6 , 100,5,7),
+("Iris",2.75,100,3,6),
+("Souci", 1.25,100,6,9),
+("Œillet d'Inde",1.50,100, 6,10),
+("Primevère", 1.50 , 100,2,4);
+INSERT INTO Accessories( name_accessories, price_accessories,stock_accessories)
+VALUES
+('Vase en céramique', 15.99, 50),
+('Ruban décoratif', 2.99, 100),
+('Pince à fleurs', 4.99, 75),
+('Cache-pot en rotin', 9.99, 40),
+("Sachet d'engrais pour fleurs", 6.99, 200);
