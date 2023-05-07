@@ -260,7 +260,7 @@ using (MySqlConnection connection = sqlConnection)
                 enterSpecialRequest();
                 break;
             case "5":
-                createOrder(); //to change because it neeeds to verif if correct options
+                createOrder(true); //to change because it neeeds to verif if correct options
                 validateBouquet(personalizedBouquet);
                 break;
             case "0":
@@ -331,10 +331,10 @@ using (MySqlConnection connection = sqlConnection)
         {
             Console.WriteLine("Bouquet validated. Press any key to continue.");
             Console.ReadKey();
-            createOrder();
+            createOrder(true);
         }
     }
-    void createOrder()
+    void createOrder(bool isCommandPersonalized)
     {
         Console.Clear();
         
@@ -353,14 +353,40 @@ using (MySqlConnection connection = sqlConnection)
         DateTime orderDateDateTime = DateTime.Now;
         
         DateTime deliveryDateDateTime = new();
-        enterDateTime(deliveryDateDateTime);
+        enterDateTime(ref deliveryDateDateTime);
         
         Console.WriteLine("Enter a personnalized message for the recipient: ");
         string message = Console.ReadLine();
+
+        string status = "";
+        bool inventaryverified = false;
+        TimeSpan difference = deliveryDateDateTime - orderDateDateTime;
+        if(difference.TotalDays>3)
+        {
+            inventaryverified = true;
+        }
+        if(difference.TotalDays <= 3 && isCommandPersonalized==false)
+        {
+            inventaryverified = false;
+            Console.WriteLine("Il faut verifier la commande");
+            status = "VINV";
+        }
+        if (isCommandPersonalized == true)
+        {
+            Console.WriteLine("Il faut vérifier la commande personnalisée");
+            inventaryverified = false;
+            status = "CPAV";
+        }
+        if (inventaryverified==true)
+        {
+            status = "CC";// le status change et devient commande complète
+            Console.WriteLine("La commande est complète.");
+
+        }
         
-        string status = "CPAV";
+
         //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
-        
+
         int idClients = 1;
         //selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
         //using (MySqlCommand command = new(selectQuery, connection))
@@ -400,7 +426,7 @@ using (MySqlConnection connection = sqlConnection)
         Console.ReadKey();
         menu();
     }
-    void enterDateTime(DateTime deliveryDateDateTime)
+    void enterDateTime(ref DateTime deliveryDateDateTime)
     {
         Console.Write("Enter your delivery date (YYYY-MM-DD): ");
         string deliveryDate = Console.ReadLine();
@@ -412,7 +438,7 @@ using (MySqlConnection connection = sqlConnection)
         {
             Console.WriteLine("Invalid date. You must enter a date in the format YYYY-MM-DD. Press any key to continue.");
             Console.ReadKey();
-            enterDateTime(deliveryDateDateTime);
+            enterDateTime(ref deliveryDateDateTime);
         }
     }
 }
