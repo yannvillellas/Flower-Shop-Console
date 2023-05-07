@@ -211,7 +211,8 @@ using (MySqlConnection connection = sqlConnection)
                 orderBouquet();
                 break;
             case "2":
-                personalizeBouquet();
+                Bouquet personalizedBouquet = new();
+                personalizeBouquet(personalizedBouquet);
                 break;
             case "3":
                 displayOrderHistory();
@@ -249,10 +250,9 @@ using (MySqlConnection connection = sqlConnection)
             createOrder(false, 0, idStandard);
         }
     }
-    void personalizeBouquet()
+    void personalizeBouquet(Bouquet personalizedBouquet)
     {
         Console.Clear();
-        Bouquet personalizedBouquet = new();
         // maybe add here all var without class because .Price is not working
         Console.WriteLine("PERSONALIZE BOUQUET");
         Console.WriteLine("1. Choose flower(s)");
@@ -287,7 +287,7 @@ using (MySqlConnection connection = sqlConnection)
                 Console.WriteLine("Invalid choice. Press any key to continue.");
                 Console.ReadKey();
                 Console.Clear();
-                personalizeBouquet();
+                personalizeBouquet(personalizedBouquet);
                 break;
         }
     }
@@ -325,7 +325,7 @@ using (MySqlConnection connection = sqlConnection)
             }
             else
             {
-                personalizeBouquet();
+                personalizeBouquet(personalizedBouquet);
             }
         }
     }
@@ -354,7 +354,7 @@ using (MySqlConnection connection = sqlConnection)
             }
             else
             {
-                personalizeBouquet();
+                personalizeBouquet(personalizedBouquet);
             }
         }
     }
@@ -376,9 +376,8 @@ using (MySqlConnection connection = sqlConnection)
         }
         personalizedBouquet.Price = budgetDouble;
         Console.WriteLine("Budget entered. Press any key to continue.");
-        Console.WriteLine(personalizedBouquet.Price);
         Console.ReadKey();
-        personalizeBouquet();
+        personalizeBouquet(personalizedBouquet);
     }
     void enterSpecialRequest(Bouquet personalizedBouquet)
     {
@@ -388,17 +387,16 @@ using (MySqlConnection connection = sqlConnection)
         personalizedBouquet.Description = Console.ReadLine();
         Console.WriteLine("Special request entered. Press any key to continue.");
         Console.ReadKey();
-        personalizeBouquet();
+        personalizeBouquet(personalizedBouquet);
     }
     void validateBouquet(Bouquet personalizedBouquet)
     {
         Console.WriteLine("VALIDATE BOUQUET");
-        Console.WriteLine(personalizedBouquet.Price);
         if (personalizedBouquet.Flowers.Count == 0 && personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0)
         {
             Console.WriteLine("You must choose at least one flower and one accessorie and enter a budget. Press any key to continue.");
             Console.ReadKey();
-            personalizeBouquet();
+            personalizeBouquet(personalizedBouquet);
         }
         else
         {
