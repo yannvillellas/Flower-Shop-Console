@@ -163,12 +163,10 @@ ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Clients0_FK
 	FOREIGN KEY (id_clients)
 	REFERENCES Clients(id_clients);
-
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Shops1_FK
 	FOREIGN KEY (id_shops)
 	REFERENCES Shops(id_shops);
-
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Addresses2_FK
 	FOREIGN KEY (id_addresses)
@@ -185,6 +183,7 @@ ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Addresses0_AK
 	FOREIGN KEY (id_addresses)
 	REFERENCES Addresses(id_addresses);
+    
 ALTER TABLE Stocks
 	ADD CONSTRAINT Stocks_Shops0_FK
 	FOREIGN KEY (id_shops)
@@ -194,7 +193,11 @@ ALTER TABLE Clients
 	ADD CONSTRAINT Clients_Addresses0_FK
 	FOREIGN KEY (id_addresses)
 	REFERENCES Addresses(id_addresses);
-
+    
+INSERT INTO Addresses (id_addresses, first_name_addresses, last_name_addresses, phone_addresses, city, zip_code, street_number, street_name)
+VALUE(1, "a", "a", "a", "a", 1, 1, "a");
+INSERT INTO Clients (id_clients, first_name, last_name, phone, email, password, loyalty, admin, id_addresses)
+VALUE(1, "a", "a", "a" , "a", "a", "a", true, 1);
 INSERT INTO Standard (id_standard, name_bouquet, description_standard, price_standard, category)
 VALUES 
 (1,"Gros Merci", "Arrangement floral avec marguerites et verdure",45,"Toute ocassion"),

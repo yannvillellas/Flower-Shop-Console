@@ -265,20 +265,19 @@ using (MySqlConnection connection = sqlConnection)
         switch (choice)
         {
             case "1":
-                choosesFlowers();
+                chooseFlowers(personalizedBouquet);
                 break;
             case "2":
-                chooseAccessories();
+                chooseAccessories(personalizedBouquet);
                 break;
             case "3":
                 enterBudget(personalizedBouquet);
                 break;
             case "4":
-                enterSpecialRequest();
+                enterSpecialRequest(personalizedBouquet);
                 break;
             case "5":
-                // createOrder(true); //to change because it neeeds to verif if correct options
-                validateBouquet(personalizedBouquet);
+                validateBouquet(personalizedBouquet); // add verif if budget is not null etc.
                 break;
             case "0":
                 Environment.Exit(0);
@@ -299,13 +298,64 @@ using (MySqlConnection connection = sqlConnection)
     {
         
     }
-    void choosesFlowers()
+    void chooseFlowers(Bouquet personalizedBouquet)
     {
+        Console.Clear();
         
+        Console.WriteLine("CHOOSE FLOWER(S)");
+        string selectQuery = "SELECT * FROM flowers WHERE stock_flowers > 0;"; // here change with the date of availability
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["id_flowers"]}. {reader["name_flowers"]} - {reader["price_flowers"]}$");
+                }
+            }
+            Console.Write("Enter the id of the flower you want to add to your bouquet: ");
+            personalizedBouquet.Flowers.Add(Convert.ToInt32(Console.ReadLine()));
+            Console.WriteLine("Flower added.");
+            Console.WriteLine("Do you want to add another flower to your bouquet? (Y/N)");
+            string choice = Console.ReadLine().ToLower();
+            if (choice == "y")
+            {
+                chooseFlowers(personalizedBouquet);
+            }
+            else
+            {
+                personalizeBouquet();
+            }
+        }
     }
-    void chooseAccessories()
+    void chooseAccessories(Bouquet personalizedBouquet)
     {
-
+        Console.Clear();
+        Console.WriteLine("CHOOSE ACCESSORIE(S)");
+        string selectQuery = "SELECT * FROM accessories WHERE stock_accessories > 0;"; // here change with the date of availability
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["id_accessories"]}. {reader["name_accessories"]} - {reader["price_accessories"]}$");
+                }
+            }
+            Console.Write("Enter the id of the accessorie you want to add to your bouquet: ");
+            personalizedBouquet.Accessories.Add(Convert.ToInt32(Console.ReadLine()));
+            Console.WriteLine("Accessorie added.");
+            Console.WriteLine("Do you want to add another accessorie to your bouquet? (Y/N)");
+            string choice = Console.ReadLine().ToLower();
+            if (choice == "y")
+            {
+                chooseAccessories(personalizedBouquet);
+            }
+            else
+            {
+                personalizeBouquet();
+            }
+        }
     }
     void enterBudget(Bouquet personalizedBouquet)
     {
@@ -328,10 +378,10 @@ using (MySqlConnection connection = sqlConnection)
         Console.ReadKey();
         personalizeBouquet();
     }
-    void enterSpecialRequest()
+    void enterSpecialRequest(Bouquet personalizedBouquet)
     {
         Console.Write("Enter your special request: ");
-        string specialRequest = Console.ReadLine();
+        personalizedBouquet.Description = Console.ReadLine();
         Console.WriteLine("Special request entered. Press any key to continue.");
         Console.ReadKey();
         personalizeBouquet();
@@ -350,12 +400,13 @@ using (MySqlConnection connection = sqlConnection)
             Console.WriteLine("Bouquet validated. Press any key to continue.");
         }
         Console.ReadKey();
+        int idPersonalized;
         string selectQuery = "SELECT id_personalized FROM personalized ORDER BY id_personalized DESC LIMIT 1;";
         using (MySqlCommand command = new(selectQuery, connection))
         {
-            int idPersonalized = Convert.ToInt32(command.ExecuteScalar());
+            idPersonalized = Convert.ToInt32(command.ExecuteScalar());
         }
-        createOrder(true);
+        createOrder(true, idPersonalized);
     }
     void createOrder(bool isPersonalizedCommand, int idPersonalized = 0, int idStandard=0)
     {
@@ -406,7 +457,7 @@ using (MySqlConnection connection = sqlConnection)
                 status = "CC";
             }
         }
-        if (inventoryVerified==true)
+        if (inventoryVerified)
         {
             // completed command
             status = "CC";
@@ -437,12 +488,6 @@ using (MySqlConnection connection = sqlConnection)
         {
             string insertQuery = "INSERT INTO orders (id_addresses, order_date, delivery_date, message, status, id_clients, id_shops, id_personalized)" +
                 "VALUES (@id_addresses, @order_date, @delivery_date, @message, @status, @id_clients, @id_shops, @id_personalized)";
-            selectQuery = "SELECT id_personalized FROM Personalized ORDER BY id_personalized DESC LIMIT 1";
-            using (MySqlCommand command = new(selectQuery, connection))
-            {
-                idPersonalized = Convert.ToInt32(command.ExecuteScalar());
-            }
-            idPersonalized++;
             using (MySqlCommand command = new(insertQuery, connection))
             {
                 command.Parameters.AddWithValue("@id_addresses", idAddresses);

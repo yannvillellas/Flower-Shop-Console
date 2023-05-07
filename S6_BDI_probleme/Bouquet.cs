@@ -11,25 +11,25 @@ namespace S6_BDI_probleme
     {
         private string name;
         private string description;
-        private List<string> flowers;
-        private List<string> accessories;
+        private List<int> flowers;
+        private List<int> accessories;
         private double price;
 
-        public Bouquet(string name, string description, double price, List<string> flowers, List<string> accessories)
+        public Bouquet(string name, string description, double price, List<int> flowers, List<int> accessories)
         {
             this.name = name;
             this.description = description;
             this.price = price;
-            this.flowers = flowers ?? new List<string>();
-            this.accessories = accessories ?? new List<string>();
+            this.flowers = flowers ?? new List<int>();
+            this.accessories = accessories ?? new List<int>();
         }
         public Bouquet()
         {
             this.name = "";
             this.description = "";
             this.price = 0;
-            this.flowers = new List<string> { "test", "tes t" };
-            this.accessories = new List<string> { "testa", "df" };
+            this.flowers = new List<int> { };
+            this.accessories = new List<int> { };
         }
 
         public string Name
@@ -43,7 +43,7 @@ namespace S6_BDI_probleme
             get => description;
             set => description = value;
         }
-        public List<string> Flowers
+        public List<int> Flowers
         {
             get => flowers;
             set => flowers = value;
@@ -51,10 +51,9 @@ namespace S6_BDI_probleme
         public string FlowersString
         {
             get => string.Join(",", flowers);
-            set => flowers = value.Split(',').ToList();
         }
         
-        public List<string> Accessories
+        public List<int> Accessories
         {
             get => accessories;
             set => accessories = value;
@@ -63,7 +62,6 @@ namespace S6_BDI_probleme
         public string AccessoriesString
         {
             get => string.Join(",", accessories);
-            set => accessories = value.Split(',').ToList();
         }
 
         public double Price
