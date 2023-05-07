@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -42,11 +43,15 @@ namespace S6_BDI_probleme
             get => description;
             set => description = value;
         }
-        
         public List<string> Flowers
         {
             get => flowers;
             set => flowers = value;
+        }
+        public string FlowersString
+        {
+            get => string.Join(",", flowers);
+            set => flowers = value.Split(',').ToList();
         }
         
         public List<string> Accessories
@@ -55,6 +60,12 @@ namespace S6_BDI_probleme
             set => accessories = value;
         }
         
+        public string AccessoriesString
+        {
+            get => string.Join(",", accessories);
+            set => accessories = value.Split(',').ToList();
+        }
+
         public double Price
         {
             get => price;
