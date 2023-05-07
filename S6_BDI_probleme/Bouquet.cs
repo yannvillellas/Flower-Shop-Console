@@ -27,7 +27,6 @@ namespace S6_BDI_probleme
         {
             this.name = "";
             this.description = "";
-            this.price = 0;
             this.flowers = new List<int> { };
             this.accessories = new List<int> { };
         }

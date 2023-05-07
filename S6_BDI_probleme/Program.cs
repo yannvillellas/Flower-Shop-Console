@@ -253,6 +253,7 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Clear();
         Bouquet personalizedBouquet = new();
+        // maybe add here all var without class because .Price is not working
         Console.WriteLine("PERSONALIZE BOUQUET");
         Console.WriteLine("1. Choose flower(s)");
         Console.WriteLine("2. Choose accessorie(s)");
@@ -375,11 +376,14 @@ using (MySqlConnection connection = sqlConnection)
         }
         personalizedBouquet.Price = budgetDouble;
         Console.WriteLine("Budget entered. Press any key to continue.");
+        Console.WriteLine(personalizedBouquet.Price);
         Console.ReadKey();
         personalizeBouquet();
     }
     void enterSpecialRequest(Bouquet personalizedBouquet)
     {
+        Console.Clear();
+        Console.WriteLine("SPECIAL REQUEST");
         Console.Write("Enter your special request: ");
         personalizedBouquet.Description = Console.ReadLine();
         Console.WriteLine("Special request entered. Press any key to continue.");
@@ -388,25 +392,36 @@ using (MySqlConnection connection = sqlConnection)
     }
     void validateBouquet(Bouquet personalizedBouquet)
     {
-        string insertQuery = "INSERT INTO personalized (price_personalized, description_personalized, flowers_personalized, accessories_personalized)"+
-            "\r\nVALUES (@price_personalized, @description_personalized, @flowers_personalized, @accessories_personalized);";
-        using (MySqlCommand command = new(insertQuery, connection))
+        Console.WriteLine("VALIDATE BOUQUET");
+        Console.WriteLine(personalizedBouquet.Price);
+        if (personalizedBouquet.Flowers.Count == 0 && personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0)
         {
-            command.Parameters.AddWithValue("@price_personalized", personalizedBouquet.Price);
-            command.Parameters.AddWithValue("@description_personalized", personalizedBouquet.Description);
-            command.Parameters.AddWithValue("@flowers_personalized", personalizedBouquet.FlowersString);
-            command.Parameters.AddWithValue("@accessories_personalized", personalizedBouquet.AccessoriesString);
-            debugRowsAffected(command);
-            Console.WriteLine("Bouquet validated. Press any key to continue.");
+            Console.WriteLine("You must choose at least one flower and one accessorie and enter a budget. Press any key to continue.");
+            Console.ReadKey();
+            personalizeBouquet();
         }
-        Console.ReadKey();
-        int idPersonalized;
-        string selectQuery = "SELECT id_personalized FROM personalized ORDER BY id_personalized DESC LIMIT 1;";
-        using (MySqlCommand command = new(selectQuery, connection))
+        else
         {
-            idPersonalized = Convert.ToInt32(command.ExecuteScalar());
+            string insertQuery = "INSERT INTO Personalized (price_personalized, description_personalized, flowers_personalized, accessories_personalized)" +
+                "\r\nVALUES (@price_personalized, @description_personalized, @flowers_personalized, @accessories_personalized);";
+            using (MySqlCommand command = new(insertQuery, connection))
+            {
+                command.Parameters.AddWithValue("@price_personalized", personalizedBouquet.Price);
+                command.Parameters.AddWithValue("@description_personalized", personalizedBouquet.Description);
+                command.Parameters.AddWithValue("@flowers_personalized", personalizedBouquet.FlowersString);
+                command.Parameters.AddWithValue("@accessories_personalized", personalizedBouquet.AccessoriesString);
+                debugRowsAffected(command);
+                Console.WriteLine("Bouquet validated. Press any key to continue.");
+            }
+            Console.ReadKey();
+            int idPersonalized;
+            string selectQuery = "SELECT id_personalized FROM personalized ORDER BY id_personalized DESC LIMIT 1;";
+            using (MySqlCommand command = new(selectQuery, connection))
+            {
+                idPersonalized = Convert.ToInt32(command.ExecuteScalar());
+            }
+            createOrder(true, idPersonalized);
         }
-        createOrder(true, idPersonalized);
     }
     void createOrder(bool isPersonalizedCommand, int idPersonalized = 0, int idStandard=0)
     {
