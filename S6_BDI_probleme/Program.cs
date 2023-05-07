@@ -334,7 +334,7 @@ using (MySqlConnection connection = sqlConnection)
             createOrder(true);
         }
     }
-    void createOrder(bool isCommandPersonalized)
+    void createOrder(bool isPersonalizedCommand)
     {
         Console.Clear();
         
@@ -359,43 +359,42 @@ using (MySqlConnection connection = sqlConnection)
         string message = Console.ReadLine();
 
         string status = "";
-        bool inventaryverified = false;
+        bool inventoryVerified = false;
         TimeSpan difference = deliveryDateDateTime - orderDateDateTime;
-        if(difference.TotalDays>3)
+        bool delayIsEnough = difference.TotalDays > 3;
+        if (isPersonalizedCommand)
         {
-            inventaryverified = true;
-        }
-        if(difference.TotalDays <= 3 && isCommandPersonalized==false)
-        {
-            inventaryverified = false;
-            Console.WriteLine("Il faut verifier la commande");
-            status = "VINV";
-        }
-        if (isCommandPersonalized == true)
-        {
-            Console.WriteLine("Il faut vérifier la commande personnalisée");
-            inventaryverified = false;
+            // personnalized command to verify
             status = "CPAV";
         }
-        if (inventaryverified==true)
+        else if(!isPersonalizedCommand)
         {
-            status = "CC";// le status change et devient commande complète
-            Console.WriteLine("La commande est complète.");
+            if (!delayIsEnough)
+            {
+                // command to verify
+                status = "VINV";
+            }
+            else
+            {
+                // completed command
+                inventoryVerified = true;
+                status = "CC";
+            }
+        }
+        if (inventoryVerified==true)
+        {
+            // completed command
+            status = "CC";
 
         }
-        
+        int idClients = 0;
+        selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            command.Parameters.AddWithValue("@email",email);
+            idClients = Convert.ToInt32(command.ExecuteScalar());
+        }
 
-        //TODO: add status to order. It varies between VINV, CC, CPAV wich are standard command, completed command with all items in stock date of delivery is more than 3 days after order date, command is less than 3 days after order date so need to be verified
-
-        int idClients = 1;
-        //selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
-        //using (MySqlCommand command = new(selectQuery, connection))
-        //{
-        //    command.Parameters.AddWithValue("@email",
-        //        recipient.Email); //ERROR TO CORRECT
-        //    idClients = Convert.ToInt32(command.ExecuteScalar());
-        //}
-        
         Console.WriteLine("Enter the id of the shop you want to order from: ");
         selectQuery = "SELECT * FROM shops";
         using (MySqlCommand command = new(selectQuery, connection))
