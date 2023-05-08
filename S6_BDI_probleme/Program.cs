@@ -448,6 +448,8 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("5. Add a new employee (admin)");
         Console.WriteLine("6. Display all employees (admin)");
         Console.WriteLine("7. Change the status of an order");
+        Console.WriteLine("8. Export in XML clients who orders in the last month");
+        Console.WriteLine("9. Export in JSON clients who didn't order in the last 6 months");
         Console.WriteLine("0. Return to menu");
         Console.Write("Enter your choice: ");
         string choice = Console.ReadLine();
@@ -473,6 +475,12 @@ using (MySqlConnection connection = sqlConnection)
                 break;
             case "7":
                 changeStatus();
+                break;
+            case "8":
+                exportXML();
+                break;
+            case "9":
+                exportJSON();
                 break;
             case "0":
                 menu();
@@ -781,6 +789,21 @@ using (MySqlConnection connection = sqlConnection)
         {
             menuAdmin();
         }
+    }
+    void exportXML()
+    {
+        Console.Clear();
+        Console.WriteLine("EXPORT XML");
+        //TODO
+        // export all clients who have ordered many times the last month
+        List<int> idClientsOrdersList = new();
+        
+    }
+    void exportJSON()
+    {
+        Console.Clear();
+        Console.WriteLine("EXPORT JSON");
+        //TODO
     }
     void enterBudget(Bouquet personalizedBouquet)
     {
