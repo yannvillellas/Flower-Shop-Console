@@ -236,6 +236,12 @@ using (MySqlConnection connection = sqlConnection)
                 {
                     adminMenu();
                 }
+                else
+                {
+                    Console.WriteLine("Invalid choice. Press any key to continue.");
+                    Console.ReadKey();
+                    menu();
+                }
                 break;
             case "0":
                 authentication();
@@ -243,7 +249,6 @@ using (MySqlConnection connection = sqlConnection)
             default:
                 Console.WriteLine("Invalid choice. Press any key to continue.");
                 Console.ReadKey();
-                Console.Clear();
                 menu();
                 break;
         }
@@ -317,7 +322,24 @@ using (MySqlConnection connection = sqlConnection)
     }
     void displayOrderHistory()
     {
-        
+        // use email as primary key to look for this client
+        Console.Clear();
+        Console.WriteLine("ORDER HISTORY");
+        string selectQuery = "SELECT * FROM orders WHERE email = @email;";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            command.Parameters.AddWithValue("@email", email);
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    //write order with 
+                }
+            }
+            Console.WriteLine("Press any key to continue.");
+            Console.ReadKey();
+            menu();
+        }
     }
     void displayLoyaltyStatus()
     {
@@ -423,7 +445,7 @@ using (MySqlConnection connection = sqlConnection)
                 addBouquet();
                 break;
             case "4":
-                statisticsMenu();
+                menuStats();
                 break;
             case "5":
                 addAdmin();
@@ -503,10 +525,10 @@ using (MySqlConnection connection = sqlConnection)
         Console.ReadKey();
         adminMenu();
     }
-    void statisticsMenu()
+    void menuStats()
     {
         Console.Clear();
-        Console.WriteLine("MENU OPTIONS");
+        Console.WriteLine("MENU STATS");
         Console.WriteLine("1. Mean price of bouquets");
         Console.WriteLine("2. Best client of the month");
         Console.WriteLine("3. Best seller for the standard bouquet");
@@ -519,7 +541,7 @@ using (MySqlConnection connection = sqlConnection)
         {
             case "1":
                 Console.Clear();
-                Console.WriteLine("Mean price of bouquets sell");
+                Console.WriteLine("MENU STATS - AVERAGE BOUQUET PRICE");
                 string selectQuery = "SELECT AVG(average_price) AS overall_average_price\r\nFROM (\r\n  SELECT AVG(price_standard) AS average_price\r\n  FROM Standard\r\n  UNION ALL\r\n  SELECT AVG(price_personalized) AS average_price\r\n  FROM Personalized\r\n) AS subquery;";
                 using (MySqlCommand command = new(selectQuery, connection))
                 {
@@ -528,17 +550,17 @@ using (MySqlConnection connection = sqlConnection)
                         while (reader.Read())
                         {
                             decimal averagePrice = reader.GetDecimal(0);
-                            Console.WriteLine("Moyenne du prix des bouquets : " + averagePrice.ToString("C"));
+                            Console.WriteLine($"The average price of the bouquets is: ${averagePrice}.");
                         }
                     }
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
-                statisticsMenu();
+                menuStats();
                 break;
             case "2":
                 Console.Clear();
-                Console.WriteLine("Best Client of the month");
+                Console.WriteLine("MENU STATS - BEST CLIENT");
                 string selectQuery2 = "SELECT id_clients, first_name, last_name\r\nFROM Clients\r\nWHERE MONTH(loyalty) = MONTH(CURRENT_DATE())\r\nORDER BY loyalty DESC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery2, connection))
                 {
@@ -549,22 +571,18 @@ using (MySqlConnection connection = sqlConnection)
                             int clientId = reader.GetInt32(0);
                             string firstName = reader.GetString(1);
                             string lastName = reader.GetString(2);
-
-                            Console.WriteLine("Meilleur client du mois :");
-                            Console.WriteLine("ID du client : " + clientId);
-                            Console.WriteLine("Prénom : " + firstName);
-                            Console.WriteLine("Nom : " + lastName);
+                            Console.WriteLine($"The best client of the month is: {firstName} {lastName} (ID: {clientId}).");
                         }
 
                     }
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
-                statisticsMenu();
+                menuStats();
                 break;
             case "3":
                 Console.Clear();
-                Console.WriteLine("Best Seller For The Standard Bouquet");
+                Console.WriteLine("MENU STATS - BEST SELLER");
                 string selectQuery3 = "SELECT id_standard, name_bouquet\r\nFROM Standard\r\nORDER BY (SELECT COUNT(*) FROM Orders WHERE id_standard = Standard.id_standard) DESC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery3, connection))
                 {
@@ -574,20 +592,19 @@ using (MySqlConnection connection = sqlConnection)
                         {
                             int idStandard = reader.GetInt32(0);
                             string nameBouquet = reader.GetString(1);
-
-                            Console.WriteLine($"Le bouquet standard le plus vendu est {nameBouquet} (ID: {idStandard})");
+                            Console.WriteLine($"The best seller for the standard bouquet is: {nameBouquet} (ID: {idStandard}).");
                         }
 
                     }
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
-                statisticsMenu();
+                menuStats();
                 break;
             case "4":
                 Console.Clear();
-                Console.WriteLine("Best Shops");
-                string selectQuery4 = "SELECT id_shops, city_shops\r\nFROM Shops\r\nORDER BY (SELECT SUM(price_standard) FROM Orders JOIN Standard ON Orders.id_standard = Standard.id_standard WHERE Orders.id_shops = Shops.id_shops) + (SELECT SUM(price_custom) FROM Orders JOIN Custom ON Orders.id_custom = Custom.id_custom WHERE Orders.id_shops = Shops.id_shops) DESC\r\nLIMIT 1;";
+                Console.WriteLine("MENU STATS - BEST SHOP");
+                string selectQuery4 = "SELECT id_shops, city_shops\r\nFROM Shops\r\nORDER BY (\r\n    SELECT SUM(price_standard) \r\n    FROM Orders \r\n    JOIN Standard ON Orders.id_standard = Standard.id_standard \r\n    WHERE Orders.id_shops = Shops.id_shops\r\n) + (\r\n    SELECT SUM(price_personalized) \r\n    FROM Orders \r\n    JOIN Personalized ON Orders.id_personalized = Personalized.id_personalized \r\n    WHERE Orders.id_shops = Shops.id_shops\r\n) DESC\r\nLIMIT 1;\r\n";
                 using (MySqlCommand command = new(selectQuery4, connection))
                 {
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -596,19 +613,18 @@ using (MySqlConnection connection = sqlConnection)
                         {
                             int idShops = reader.GetInt32(0);
                             string cityShops = reader.GetString(1);
-
-                            Console.WriteLine($"La ville du magasin avec le chiffre d'affaires le plus élevé est {cityShops} (ID du magasin: {idShops})");
+                            Console.WriteLine($"The city of the shop with the highest turnover is {cityShops} (ID of the shop: {idShops}).");
                         }
                     }
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
-                statisticsMenu();
+                menuStats();
                 break;
             case "5":
                 Console.Clear();
-                Console.WriteLine("Worst Exoctic Flower");
-                string selectQuery5 = "SELECT id_shops, city_shops\r\nFROM Shops\r\nORDER BY (SELECT SUM(price_standard) FROM Orders JOIN Standard ON Orders.id_standard = Standard.id_standard WHERE Orders.id_shops = Shops.id_shops) + (SELECT SUM(price_custom) FROM Orders JOIN Custom ON Orders.id_custom = Custom.id_custom WHERE Orders.id_shops = Shops.id_shops) DESC\r\nLIMIT 1;";
+                Console.WriteLine("MENU STATS - WORST EXOSTIC FLOWER");
+                string selectQuery5 = "SELECT id_flowers, name_flowers\r\nFROM Flowers\r\nWHERE name_flowers = 'Ginger' OR name_flowers = 'Oiseaux du paradis'\r\nORDER BY (SELECT COUNT(*) FROM Orders JOIN Personalized ON Orders.id_personalized = Personalized.id_personalized WHERE Personalized.flowers_personalized LIKE CONCAT('%', Flowers.name_flowers, '%')) ASC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery5, connection))
                 {
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -617,14 +633,13 @@ using (MySqlConnection connection = sqlConnection)
                         {
                             int idFlowers = reader.GetInt32(0);
                             string nameFlowers = reader.GetString(1);
-
-                            Console.WriteLine($"La fleur la moins utilisée dans les bouquets personnalisés contenant les fleurs 'Ginger' ou 'Oiseaux du paradis' est {nameFlowers} (ID: {idFlowers})");
+                            Console.WriteLine($"The least used flower in personalized bouquets containing the flowers 'Ginger' or 'Birds of paradise' is {nameFlowers} (ID: {idFlowers}).");
                         }
                     }
                 }
                 Console.WriteLine("Press any key to continue.");
                 Console.ReadKey();
-                statisticsMenu();
+                menuStats();
                 break;
             case "0":
                 menu();
@@ -633,7 +648,7 @@ using (MySqlConnection connection = sqlConnection)
                 Console.WriteLine("Invalid choice. Press any key to continue.");
                 Console.ReadKey();
                 Console.Clear();
-                statisticsMenu();
+                menuStats();
                 break;
         }
     }
