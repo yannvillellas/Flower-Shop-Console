@@ -234,7 +234,7 @@ using (MySqlConnection connection = sqlConnection)
             case "5":
                 if (isAdmin)
                 {
-                    adminMenu();
+                    menuAdmin();
                 }
                 else
                 {
@@ -325,7 +325,7 @@ using (MySqlConnection connection = sqlConnection)
         // use email as primary key to look for this client
         Console.Clear();
         Console.WriteLine("ORDER HISTORY");
-        string selectQuery = "SELECT * FROM orders WHERE email = @email;";
+        string selectQuery = "SELECT * FROM orders JOIN clients WHERE email = @email;";
         using (MySqlCommand command = new(selectQuery, connection))
         {
             command.Parameters.AddWithValue("@email", email);
@@ -333,7 +333,7 @@ using (MySqlConnection connection = sqlConnection)
             {
                 while (reader.Read())
                 {
-                    //write order with 
+                    Console.WriteLine($"{reader["id_orders"]}. {reader["message"]} - {reader["order_date"]} - {reader["delivery_date"]} - {reader["status"]}");
                 }
             }
             Console.WriteLine("Press any key to continue.");
@@ -343,7 +343,23 @@ using (MySqlConnection connection = sqlConnection)
     }
     void displayLoyaltyStatus()
     {
-        
+        Console.Clear();
+        Console.WriteLine("LOYALTY STATUS");
+        string selectQuery = "SELECT * FROM clients WHERE email = @email;";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            command.Parameters.AddWithValue("@email", email);
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["loyalty_status"]}");
+                }
+            }
+            Console.WriteLine("Press any key to continue.");
+            Console.ReadKey();
+            menu();
+        }
     }
     void chooseFlowers(Bouquet personalizedBouquet)
     {
@@ -421,7 +437,7 @@ using (MySqlConnection connection = sqlConnection)
             }
         }
     }
-    void adminMenu()
+    void menuAdmin()
     {
         Console.Clear();
         Console.WriteLine("ADMIN MENU");
@@ -430,6 +446,8 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("3. Add a bouquet");
         Console.WriteLine("4. Statistics menu");
         Console.WriteLine("5. Add a new employee (admin)");
+        Console.WriteLine("6. Display all employees (admin)");
+        Console.WriteLine("7. Change the status of an order");
         Console.WriteLine("0. Return to menu");
         Console.Write("Enter your choice: ");
         string choice = Console.ReadLine();
@@ -450,6 +468,12 @@ using (MySqlConnection connection = sqlConnection)
             case "5":
                 addAdmin();
                 break;
+            case "6":
+                seeAdmins();
+                break;
+            case "7":
+                changeStatus();
+                break;
             case "0":
                 menu();
                 break;
@@ -457,7 +481,7 @@ using (MySqlConnection connection = sqlConnection)
                 Console.WriteLine("Invalid choice. Press any key to continue.");
                 Console.ReadKey();
                 Console.Clear();
-                adminMenu();
+                menuAdmin();
                 break;
         }
     }
@@ -482,7 +506,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.WriteLine("Flower added. Press any key to continue.");
         Console.ReadKey();
-        adminMenu();
+        menuAdmin();
     }
     void addAccessorie()
     {
@@ -501,7 +525,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.WriteLine("Accessorie added. Press any key to continue.");
         Console.ReadKey();
-        adminMenu();
+        menuAdmin();
     }
     void addBouquet()
     {
@@ -523,7 +547,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.WriteLine("Bouquet added. Press any key to continue.");
         Console.ReadKey();
-        adminMenu();
+        menuAdmin();
     }
     void menuStats()
     {
@@ -688,7 +712,75 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.WriteLine("Press any key to continue.");
         Console.ReadKey();
-        menu();
+        menuAdmin();
+    }
+    void seeAdmins()
+    {
+        Console.Clear();
+        Console.WriteLine("SEE ADMINS");
+        string selectQuery = "SELECT * FROM Clients WHERE admin = true";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
+                    string firstName = reader.GetString(1);
+                    string lastName = reader.GetString(2);
+                    string phone = reader.GetString(3);
+                    string email = reader.GetString(4);
+                    string password = reader.GetString(5);
+                    string loyalty = reader.GetString(6);
+                    bool admin = reader.GetBoolean(7);
+                    int idAddresses = reader.GetInt32(8);
+                    Console.WriteLine($"ID: {id} | First Name: {firstName} | Last Name: {lastName} | Phone: {phone} | Email: {email} | Password: {password} | Loyalty: {loyalty} | Admin: {admin} | ID Addresses: {idAddresses}");
+                }
+            }
+        }
+        Console.WriteLine("Press any key to continue.");
+        Console.ReadKey();
+        menuAdmin();
+    }
+    void changeStatus()
+    {
+        // show all the commands with status to be changed (CPAV or VINV)
+        Console.Clear();
+        Console.WriteLine("CHANGE STATUS");
+        string selectQuery = "SELECT * FROM Orders WHERE status = 'CPAV' OR status = 'VINV'";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
+                    string order_date = reader.GetString(2);
+                    string delivery_date = reader.GetString(3);
+                    string status = reader.GetString(4);
+                    Console.WriteLine($"ID: {id} | Order date: {order_date} | Delivery date: {delivery_date} | Status: {status}");
+                }
+            }
+        }
+        Console.Write("Enter the ID of the order you want to change the status of : ");
+        int idOrder = Convert.ToInt32(Console.ReadLine());
+        Console.Write("Enter the new status (CC?) : ");
+        string newStatus = Console.ReadLine();
+        string updateQuery = $"UPDATE Orders SET status = '{newStatus}' WHERE id_orders = {idOrder}";
+        using (MySqlCommand command = new(updateQuery, connection))
+        {
+            command.ExecuteNonQuery();
+        }
+        Console.WriteLine("Do you want to change another status ? (Y/N)");
+        string answer = Console.ReadLine().ToLower();
+        if (answer == "y")
+        {
+            changeStatus();
+        }
+        else
+        {
+            menuAdmin();
+        }
     }
     void enterBudget(Bouquet personalizedBouquet)
     {
