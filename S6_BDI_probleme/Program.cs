@@ -6,8 +6,8 @@ using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Asn1;
 using S6_BDI_probleme;
 
-string connectionStringAdmin = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;";
-string connectionStringUser = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;";
+string connectionStringAdmin = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;"; // string connection for admin
+string connectionStringUser = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;"; // string connection for user
 string connectionString = connectionStringUser;
 string email = "";
 Console.WriteLine("Do you want to connect as admin or bozo?");
@@ -24,10 +24,12 @@ else
 MySqlConnection sqlConnection = new(connectionString);
 using (MySqlConnection connection = sqlConnection)
 {
-    connection.Open();
-    authentication();
+    connection.Open(); // open connection
+    authentication(); // call authentication function
+    Console.WriteLine("Press any key to exit.");
+    Console.ReadKey();
 
-
+    // function to authenticate user
     void authentication()
     {
         Console.Clear();
@@ -37,18 +39,18 @@ using (MySqlConnection connection = sqlConnection)
 
         // Check if user already exists
         int count;
-        string selectQuery = "SELECT COUNT(*) FROM clients WHERE email = @email";
+        string selectQuery = "SELECT COUNT(*) FROM clients WHERE email = @email"; // query
         using (MySqlCommand command = new(selectQuery, connection))
         {
             command.Parameters.AddWithValue("@email", email);
             count = Convert.ToInt32(command.ExecuteScalar());
         }
 
-        if (count == 1)
+        if (count == 1) // user exists
         {
             login();
         }
-        else
+        else // user doesn't exist
         {
             Console.Write("User does not exist. Create account? (Y/N) ");
             string answer = Console.ReadLine().ToLower();
@@ -62,16 +64,16 @@ using (MySqlConnection connection = sqlConnection)
             {
                 Console.WriteLine("Try another email. Press any key to continue.");
                 Console.ReadKey();
-                Console.Clear();
                 authentication();
             }
         }
     }
+    // function to login an existing client
     void login()
     {
         int attempts = 3;
         bool loggedIn = false;
-        while (attempts > 0 && !loggedIn)
+        while (attempts > 0 && !loggedIn) // while there are attempts left and the user is not logged in
         {
             Console.Write("Enter password: ");
             string password = Console.ReadLine();
@@ -86,19 +88,18 @@ using (MySqlConnection connection = sqlConnection)
                 passwordCount = Convert.ToInt32(command.ExecuteScalar());
             }
 
-            if (passwordCount == 1)
+            if (passwordCount == 1) // password matches
             {
                 Console.WriteLine("Login successful.");
                 loggedIn = true;
             }
-            else
+            else // password doesn't match
             {
                 Console.WriteLine("Incorrect password. " + --attempts + " attempt(s) left.");
-                Console.WriteLine("Do you want to enter another email? (Y/N) ");
+                Console.WriteLine("Do you want to enter another email? (Y/N) "); // ask if user wants to enter another email
                 string answer = Console.ReadLine().ToLower();
-                if (answer == "y")
+                if (answer == "y") // (here is a security problem because the user can enter the same email and habe unlimited attempts)
                 {
-                    Console.Clear();
                     authentication();
                 }
             }
@@ -113,6 +114,7 @@ using (MySqlConnection connection = sqlConnection)
             menu();
         }
     }
+    // function to create client
     void createClient(Client newClient)
     {
         Console.Clear();
@@ -127,11 +129,11 @@ using (MySqlConnection connection = sqlConnection)
         newClient.Password = Console.ReadLine();
         Console.Write("Enter address. Press any key to continue.");
         Console.ReadKey();
-        enterAddress(newClient);
-        string selectQuery = "SELECT id_addresses FROM addresses ORDER BY id_addresses DESC LIMIT 1";
+        enterAddress(newClient); //create address for the new client
+        string selectQuery = "SELECT id_addresses FROM addresses ORDER BY id_addresses DESC LIMIT 1"; // get last address created (line just before)
         using (MySqlCommand command = new(selectQuery, connection))
         {
-            newClient.BillingAddressID = Convert.ToInt32(command.ExecuteScalar());
+            newClient.BillingAddressID = Convert.ToInt32(command.ExecuteScalar()); // set billing address id into client object
         }
 
         string insertQuery = "INSERT INTO clients (first_name, last_name, phone, email, password, loyalty, admin, id_addresses)" +
@@ -146,19 +148,19 @@ using (MySqlConnection connection = sqlConnection)
             command.Parameters.AddWithValue("@loyaltyStatus", newClient.Loyalty);
             command.Parameters.AddWithValue("@adminStatus", newClient.Admin);
             command.Parameters.AddWithValue("@billingAddressID", newClient.BillingAddressID);
-            command.ExecuteNonQuery();
-            
+            command.ExecuteNonQuery(); // create client with client object
+
         }
         Console.WriteLine("Account created. Press any key to continue.");
         Console.ReadKey();
-        Console.Clear();
         authentication();
     }
+    // function to enter address for a user, could be a new client or a recipient for an order (isClient = false)
     void enterAddress(Client user, bool isClient = true)
     {
         Console.Clear();
         Console.WriteLine("CREATE ADDRESS");
-        if (!isClient)
+        if (!isClient) // is a recipient so we don't know these infos
         {
             Console.Write("Enter the first name of the recipient: ");
             user.FirstName = Console.ReadLine();
@@ -177,7 +179,7 @@ using (MySqlConnection connection = sqlConnection)
         string streetName = Console.ReadLine();
 
         string insertQuery = "INSERT INTO addresses (first_name_addresses, last_name_addresses, phone_addresses, city, zip_code, street_number, street_name)" +
-            "\r\nVALUES (@firstName, @lastName, @phone, @city, @zipCode, @streetNumber, @streetName);";
+            "\r\nVALUES (@firstName, @lastName, @phone, @city, @zipCode, @streetNumber, @streetName);"; // query
         using (MySqlCommand command = new(insertQuery, connection))
         {
             command.Parameters.AddWithValue("@firstName", user.FirstName);
@@ -187,11 +189,10 @@ using (MySqlConnection connection = sqlConnection)
             command.Parameters.AddWithValue("@zipCode", zipCode);
             command.Parameters.AddWithValue("@streetNumber", streetNumber);
             command.Parameters.AddWithValue("@streetName", streetName);
-            command.ExecuteNonQuery();
+            command.ExecuteNonQuery(); // execute query
         }
         Console.WriteLine("Address created. Press any key to continue.");
         Console.ReadKey();
-        Console.Clear();
     }
     void menu()
     {
@@ -201,8 +202,7 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("2. Personnalize your bouquet");
         Console.WriteLine("3. Display your order history");
         Console.WriteLine("4. Display your loyalty status");
-        // add admin options if admin by looking in database
-        string selectQuery = "SELECT admin FROM clients WHERE email = @email";
+        string selectQuery = "SELECT admin FROM clients WHERE email = @email"; // check if user is admin
         bool isAdmin;
         using (MySqlCommand command = new(selectQuery, connection))
         {
@@ -211,7 +211,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         if (isAdmin)
         {
-            Console.WriteLine("5. Admin menu");
+            Console.WriteLine("5. Admin menu"); // if admin show admin menu
         }
         Console.WriteLine("0. Disconnect");
         Console.Write("Enter your choice: ");
@@ -232,7 +232,7 @@ using (MySqlConnection connection = sqlConnection)
                 displayLoyaltyStatus();
                 break;
             case "5":
-                if (isAdmin)
+                if (isAdmin) //check if admin to access admin menu
                 {
                     menuAdmin();
                 }
@@ -257,14 +257,14 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Clear();
         Console.WriteLine("ORDER BOUQUET");
-        string selectQuery = "SELECT * FROM standard;";
+        string selectQuery = "SELECT * FROM standard;"; // get all standard bouquets
         using (MySqlCommand command = new(selectQuery, connection))
         {
             using (MySqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    Console.WriteLine($"{reader["id_standard"]}. {reader["name_bouquet"]} - {reader["category"]}: {reader["description_standard"]} - {reader["price_standard"]}$");
+                    Console.WriteLine($"{reader["id_standard"]}. {reader["name_bouquet"]} - {reader["category"]}: {reader["description_standard"]} - {reader["price_standard"]}$"); // display all standard bouquets
                 }
             }
             Console.WriteLine("0. Return to menu");
@@ -276,7 +276,7 @@ using (MySqlConnection connection = sqlConnection)
             }
             else
             {
-                createOrder(false, 0, idStandard);
+                createOrder(false, 0, idStandard); // create order with standard bouquet id and no personalized bouquet so false and 0
             }
         }
     }
@@ -320,6 +320,154 @@ using (MySqlConnection connection = sqlConnection)
                 break;
         }
     }
+    void chooseFlowers(Bouquet personalizedBouquet)
+    {
+        Console.Clear();
+        Console.WriteLine("CHOOSE FLOWER(S)");
+        string selectQuery = "SELECT * FROM flowers WHERE stock_flowers > 0;"; // here we only want flowers that are in stock - we are not checking for month availability yet
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["id_flowers"]}. {reader["name_flowers"]} - ${reader["price_flowers"]}"); // display all flowers in stock
+                }
+            }
+            Console.WriteLine("0. Return to personalize options");
+            Console.Write("Enter the id of the flower you want to add to your bouquet: ");
+            int idFlowers = Convert.ToInt32(Console.ReadLine());
+            if (idFlowers == 0)
+            {
+                personalizeBouquet(personalizedBouquet);
+            }
+            else
+            {
+                personalizedBouquet.Flowers.Add(idFlowers); // add flower to bouquet object
+                Console.WriteLine("Flower added.");
+                Console.WriteLine("Do you want to add another flower to your bouquet? (Y/N)");
+                string choice = Console.ReadLine().ToLower();
+                if (choice == "y")
+                {
+                    chooseFlowers(personalizedBouquet); // if yes, call method again
+                }
+                else
+                {
+                    personalizeBouquet(personalizedBouquet);
+                }
+            }
+        }
+    }
+    void chooseAccessories(Bouquet personalizedBouquet)
+    {
+        Console.Clear();
+        Console.WriteLine("CHOOSE ACCESSORIE(S)");
+        string selectQuery = "SELECT * FROM accessories WHERE stock_accessories > 0;";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["id_accessories"]}. {reader["name_accessories"]} - ${reader["price_accessories"]}"); // display all accessories in stock
+                }
+            }
+            Console.WriteLine("0. Return to personalize options");
+            Console.Write("Enter the id of the accessorie you want to add to your bouquet: ");
+            int idAccessories = Convert.ToInt32(Console.ReadLine());
+            if (idAccessories == 0)
+            {
+                personalizeBouquet(personalizedBouquet); // if 0, return to personalize options
+            }
+            else
+            {
+                personalizedBouquet.Accessories.Add(idAccessories); // add accessorie to bouquet object
+                Console.WriteLine("Accessorie added.");
+                Console.WriteLine("Do you want to add another accessorie to your bouquet? (Y/N)");
+                string choice = Console.ReadLine().ToLower();
+                if (choice == "y")
+                {
+                    chooseAccessories(personalizedBouquet);
+                }
+                else
+                {
+                    personalizeBouquet(personalizedBouquet);
+                }
+            }
+        }
+    }
+    // function to enter budget
+    void enterBudget(Bouquet personalizedBouquet)
+    {
+        Console.Clear();
+        Console.WriteLine("PRICE");
+        Console.Write("Enter your budget: ");
+        string budget = Console.ReadLine();
+        double budgetDouble = 0.0;
+        try
+        {
+            budgetDouble = Convert.ToDouble(budget);
+            while (budgetDouble < 0)
+            {
+                Console.WriteLine("Invalid budget. Please enter a positive number.");
+                Console.Write("Enter your budget: ");
+                budget = Console.ReadLine();
+                budgetDouble = Convert.ToDouble(budget);
+            }
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid budget. You must enter a number. If you want decimals, use a comma instead of a dot. Press any key to continue.");
+            Console.ReadKey();
+            enterBudget(personalizedBouquet);
+        }
+        personalizedBouquet.Price = budgetDouble; // add budget to bouquet object
+        Console.WriteLine("Budget entered. Press any key to continue.");
+        Console.ReadKey();
+        personalizeBouquet(personalizedBouquet);
+    }
+    void enterSpecialRequest(Bouquet personalizedBouquet)
+    {
+        Console.Clear();
+        Console.WriteLine("SPECIAL REQUEST");
+        Console.Write("Enter your special request: ");
+        personalizedBouquet.Description = Console.ReadLine(); // add special request to bouquet object
+        Console.WriteLine("Special request entered. Press any key to continue.");
+        Console.ReadKey();
+        personalizeBouquet(personalizedBouquet);
+    }
+    void validateBouquet(Bouquet personalizedBouquet)
+    {
+        if (personalizedBouquet.Flowers.Count == 0 && personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0)
+        {
+            // if no flowers or accessories have been added, or if no budget has been entered, return to personalize options
+            Console.WriteLine("You must choose at least one flower and one accessorie and enter a budget. Press any key to continue.");
+            Console.ReadKey();
+            personalizeBouquet(personalizedBouquet);
+        }
+        else
+        {
+            string insertQuery = "INSERT INTO Personalized (price_personalized, description_personalized, flowers_personalized, accessories_personalized)" +
+                "\r\nVALUES (@price_personalized, @description_personalized, @flowers_personalized, @accessories_personalized);";
+            using (MySqlCommand command = new(insertQuery, connection))
+            {
+                command.Parameters.AddWithValue("@price_personalized", personalizedBouquet.Price);
+                command.Parameters.AddWithValue("@description_personalized", personalizedBouquet.Description);
+                command.Parameters.AddWithValue("@flowers_personalized", personalizedBouquet.FlowersString);
+                command.Parameters.AddWithValue("@accessories_personalized", personalizedBouquet.AccessoriesString);
+                command.ExecuteNonQuery(); // insert personalized bouquet into database
+                Console.WriteLine("Bouquet validated. Press any key to continue.");
+            }
+            Console.ReadKey();
+            int idPersonalized;
+            string selectQuery = "SELECT id_personalized FROM personalized ORDER BY id_personalized DESC LIMIT 1;"; // get id of last personalized bouquet added
+            using (MySqlCommand command = new(selectQuery, connection))
+            {
+                idPersonalized = Convert.ToInt32(command.ExecuteScalar());
+            }
+            createOrder(true, idPersonalized); // call method to create order with last personalized bouquet added
+        }
+    }
     void displayOrderHistory()
     {
         // use email as primary key to look for this client
@@ -333,7 +481,7 @@ using (MySqlConnection connection = sqlConnection)
             {
                 while (reader.Read())
                 {
-                    Console.WriteLine($"{reader["id_orders"]}. {reader["message"]} - {reader["order_date"]} - {reader["delivery_date"]} - {reader["status"]}");
+                    Console.WriteLine($"{reader["id_orders"]}. {reader["message"]} - {reader["order_date"]} - {reader["delivery_date"]} - {reader["status"]}"); // display all orders of this client
                 }
             }
             Console.WriteLine("Press any key to continue.");
@@ -353,7 +501,7 @@ using (MySqlConnection connection = sqlConnection)
             {
                 while (reader.Read())
                 {
-                    Console.WriteLine($"{reader["loyalty_status"]}");
+                    Console.WriteLine($"{reader["loyalty_status"]}"); // display loyalty status of this client
                 }
             }
             Console.WriteLine("Press any key to continue.");
@@ -361,80 +509,136 @@ using (MySqlConnection connection = sqlConnection)
             menu();
         }
     }
-    void chooseFlowers(Bouquet personalizedBouquet)
+    // function to create an order, personalized or standard
+    void createOrder(bool isPersonalizedCommand, int idPersonalized = 0, int idStandard = 0)
     {
         Console.Clear();
-        Console.WriteLine("CHOOSE FLOWER(S)");
-        string selectQuery = "SELECT * FROM flowers WHERE stock_flowers > 0;"; // here change with the date of availability too
+        Client recipient = new();
+
+        Console.WriteLine("CREATE ORDER");
+
+        Console.Write("Enter your shipping address. Press any key to continue.");
+        Console.ReadKey();
+        enterAddress(recipient, false); // false because it's not the billing address
+        int idAddresses = 0;
+        string selectQuery = "SELECT id_addresses FROM addresses ORDER BY id_addresses DESC LIMIT 1"; // get the id of the last address added
         using (MySqlCommand command = new(selectQuery, connection))
         {
-            using (MySqlDataReader reader = command.ExecuteReader())
+            idAddresses = Convert.ToInt32(command.ExecuteScalar());
+        }
+
+        DateTime orderDateDateTime = DateTime.Now; // get the current date and time for the order
+
+        DateTime deliveryDateDateTime = new();
+        enterDateTime(ref deliveryDateDateTime); // get the delivery date for the order
+
+        Console.WriteLine("Enter a personnalized message for the recipient: ");
+        string message = Console.ReadLine();
+
+        string status = "";
+        bool inventoryVerified = false;
+        TimeSpan difference = deliveryDateDateTime - orderDateDateTime; // get the difference between the order date and the delivery date
+        bool delayIsEnough = difference.TotalDays > 3; // check if the delay is enough to know if the inventory must be verified
+        if (isPersonalizedCommand)
+        {
+            // personnalized command to verify
+            status = "CPAV";
+        }
+        else // standard command
+        {
+            if (!delayIsEnough) //delay is less than 3 days
             {
-                while (reader.Read())
-                {
-                    Console.WriteLine($"{reader["id_flowers"]}. {reader["name_flowers"]} - {reader["price_flowers"]}$");
-                }
-            }
-            Console.WriteLine("0. Return to personalize options");
-            Console.Write("Enter the id of the flower you want to add to your bouquet: ");
-            int idFlowers = Convert.ToInt32(Console.ReadLine());
-            if (idFlowers == 0)
-            {
-                personalizeBouquet(personalizedBouquet);
+                // command to verify
+                status = "VINV";
             }
             else
             {
-                personalizedBouquet.Flowers.Add(idFlowers);
-                Console.WriteLine("Flower added.");
-                Console.WriteLine("Do you want to add another flower to your bouquet? (Y/N)");
-                string choice = Console.ReadLine().ToLower();
-                if (choice == "y")
-                {
-                    chooseFlowers(personalizedBouquet);
-                }
-                else
-                {
-                    personalizeBouquet(personalizedBouquet);
-                }
+                // completed command
+                inventoryVerified = true;
             }
         }
-    }
-    void chooseAccessories(Bouquet personalizedBouquet)
-    {
-        Console.Clear();
-        Console.WriteLine("CHOOSE ACCESSORIE(S)");
-        string selectQuery = "SELECT * FROM accessories WHERE stock_accessories > 0;"; // here change with the date of availability
+        if (inventoryVerified)
+        {
+            // completed command
+            status = "CC";
+
+        }
+        int idClients = 0;
+        selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
         using (MySqlCommand command = new(selectQuery, connection))
         {
-            using (MySqlDataReader reader = command.ExecuteReader())
+            command.Parameters.AddWithValue("@email", email);
+            idClients = Convert.ToInt32(command.ExecuteScalar()); // get the id of the client with email provided
+        }
+        Console.Clear();
+        Console.WriteLine("CHOOSE SHOP");
+        selectQuery = "SELECT * FROM shops"; // get all the shops
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            MySqlDataReader reader = command.ExecuteReader();
+            while (reader.Read())
             {
-                while (reader.Read())
-                {
-                    Console.WriteLine($"{reader["id_accessories"]}. {reader["name_accessories"]} - {reader["price_accessories"]}$");
-                }
+                Console.WriteLine($"{reader["id_shops"]} - {reader["city_shops"]}"); // display the shops
             }
-            Console.WriteLine("0. Return to personalize options");
-            Console.Write("Enter the id of the accessorie you want to add to your bouquet: ");
-            int idAccessories = Convert.ToInt32(Console.ReadLine());
-            if (idAccessories == 0)
+            reader.Close();
+        }
+        Console.Write("Enter the id of the shop you want to order from: ");
+        int idShops = Convert.ToInt32(Console.ReadLine()); // get the id of the shop chosen
+
+        if (isPersonalizedCommand) // if the command is personalized with idPersonalizd parameter
+        {
+            string insertQuery = "INSERT INTO orders (id_addresses, order_date, delivery_date, message, status, id_clients, id_shops, id_personalized)" +
+                "VALUES (@id_addresses, @order_date, @delivery_date, @message, @status, @id_clients, @id_shops, @id_personalized)";
+            using (MySqlCommand command = new(insertQuery, connection))
             {
-                personalizeBouquet(personalizedBouquet);
+                command.Parameters.AddWithValue("@id_addresses", idAddresses);
+                command.Parameters.AddWithValue("@order_date", orderDateDateTime);
+                command.Parameters.AddWithValue("@delivery_date", deliveryDateDateTime);
+                command.Parameters.AddWithValue("@message", message);
+                command.Parameters.AddWithValue("@status", status);
+                command.Parameters.AddWithValue("@id_clients", idClients);
+                command.Parameters.AddWithValue("@id_shops", idShops);
+                command.Parameters.AddWithValue("@id_personalized", idPersonalized);
+                command.ExecuteNonQuery();
             }
-            else
+        }
+        else // standard with id_standard
+        {
+            string insertQuery = "INSERT INTO orders (id_addresses, order_date, delivery_date, message, status, id_clients, id_shops, id_standard)" +
+                "VALUES (@id_addresses, @order_date, @delivery_date, @message, @status, @id_clients, @id_shops, @id_standard)";
+            using (MySqlCommand command = new(insertQuery, connection))
             {
-                personalizedBouquet.Accessories.Add(idAccessories);
-                Console.WriteLine("Accessorie added.");
-                Console.WriteLine("Do you want to add another accessorie to your bouquet? (Y/N)");
-                string choice = Console.ReadLine().ToLower();
-                if (choice == "y")
-                {
-                    chooseAccessories(personalizedBouquet);
-                }
-                else
-                {
-                    personalizeBouquet(personalizedBouquet);
-                }
+                command.Parameters.AddWithValue("@id_addresses", idAddresses);
+                command.Parameters.AddWithValue("@order_date", orderDateDateTime);
+                command.Parameters.AddWithValue("@delivery_date", deliveryDateDateTime);
+                command.Parameters.AddWithValue("@message", message);
+                command.Parameters.AddWithValue("@status", status);
+                command.Parameters.AddWithValue("@id_clients", idClients);
+                command.Parameters.AddWithValue("@id_shops", idShops);
+                command.Parameters.AddWithValue("@id_standard", idStandard);
+                command.ExecuteNonQuery();
             }
+        }
+        Console.WriteLine("Order created. Press any key to continue.");
+        Console.ReadKey();
+        menu();
+    }
+    // function to enter a date and time, ref is used to modify the variable in the main function
+    void enterDateTime(ref DateTime deliveryDateDateTime)
+    {
+        Console.Clear();
+        Console.WriteLine("CREATE ORDER");
+        Console.Write("Enter your delivery date (YYYY-MM-DD): ");
+        string deliveryDate = Console.ReadLine();
+        try
+        {
+            deliveryDateDateTime = Convert.ToDateTime(deliveryDate); // convert the string to a DateTime
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid date. You must enter a date in the format YYYY-MM-DD. Press any key to continue.");
+            Console.ReadKey();
+            enterDateTime(ref deliveryDateDateTime);
         }
     }
     void menuAdmin()
@@ -503,9 +707,9 @@ using (MySqlConnection connection = sqlConnection)
         double priceFlowers = Convert.ToDouble(Console.ReadLine());
         Console.Write("Enter the stock of the flower: ");
         int stockFlowers = Convert.ToInt32(Console.ReadLine());
-        Console.WriteLine("Enter the month of the beginning of availability of the flower: ");
+        Console.Write("Enter the month of the beginning of availability of the flower: ");
         int startMonth = Convert.ToInt32(Console.ReadLine());
-        Console.WriteLine("Enter the month of the end of availability of the flower: ");
+        Console.Write("Enter the month of the end of availability of the flower: ");
         int endMonth = Convert.ToInt32(Console.ReadLine());
         string insertQuery = $"INSERT INTO flowers (name_flowers, price_flowers, stock_flowers, start_month, end_month) VALUES ('{nameFlowers}', {priceFlowers}, {stockFlowers}, {startMonth}, {endMonth});";
         using (MySqlCommand command = new(insertQuery, connection))
@@ -655,7 +859,7 @@ using (MySqlConnection connection = sqlConnection)
                 break;
             case "5":
                 Console.Clear();
-                Console.WriteLine("MENU STATS - WORST EXOSTIC FLOWER");
+                Console.WriteLine("MENU STATS - WORST EXOTIC FLOWER");
                 string selectQuery5 = "SELECT id_flowers, name_flowers\r\nFROM Flowers\r\nWHERE name_flowers = 'Ginger' OR name_flowers = 'Oiseaux du paradis'\r\nORDER BY (SELECT COUNT(*) FROM Orders JOIN Personalized ON Orders.id_personalized = Personalized.id_personalized WHERE Personalized.flowers_personalized LIKE CONCAT('%', Flowers.name_flowers, '%')) ASC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery5, connection))
                 {
@@ -674,7 +878,7 @@ using (MySqlConnection connection = sqlConnection)
                 menuStats();
                 break;
             case "0":
-                menu();
+                menuAdmin();
                 break;
             default:
                 Console.WriteLine("Invalid choice. Press any key to continue.");
@@ -720,7 +924,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.WriteLine("Press any key to continue.");
         Console.ReadKey();
-        menuAdmin();
+        menu();
     }
     void seeAdmins()
     {
@@ -772,7 +976,7 @@ using (MySqlConnection connection = sqlConnection)
         }
         Console.Write("Enter the ID of the order you want to change the status of : ");
         int idOrder = Convert.ToInt32(Console.ReadLine());
-        Console.Write("Enter the new status (CC?) : ");
+        Console.Write("Enter the new status (CC?): ");
         string newStatus = Console.ReadLine();
         string updateQuery = $"UPDATE Orders SET status = '{newStatus}' WHERE id_orders = {idOrder}";
         using (MySqlCommand command = new(updateQuery, connection))
@@ -805,206 +1009,4 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("EXPORT JSON");
         //TODO
     }
-    void enterBudget(Bouquet personalizedBouquet)
-    {
-        Console.Clear();
-        Console.WriteLine("PRICE");
-        Console.Write("Enter your budget: ");
-        string budget = Console.ReadLine();
-        double budgetDouble=0.0;
-        try
-        {
-            budgetDouble = Convert.ToDouble(budget);
-            while (budgetDouble < 0)
-            {
-                Console.WriteLine("Invalid budget. Please enter a positive number.");
-                Console.Write("Enter your budget: ");
-                budget = Console.ReadLine();
-                budgetDouble = Convert.ToDouble(budget);
-            }
-        }
-        catch (FormatException)
-        {
-            Console.WriteLine("Invalid budget. You must enter a number. If you want decimals, use a comma instead of a dot. Press any key to continue.");
-            Console.ReadKey();
-            enterBudget(personalizedBouquet);
-        }
-        personalizedBouquet.Price = budgetDouble;
-        Console.WriteLine("Budget entered. Press any key to continue.");
-        Console.ReadKey();
-        personalizeBouquet(personalizedBouquet);
-    }
-    void enterSpecialRequest(Bouquet personalizedBouquet)
-    {
-        Console.Clear();
-        Console.WriteLine("SPECIAL REQUEST");
-        Console.Write("Enter your special request: ");
-        personalizedBouquet.Description = Console.ReadLine();
-        Console.WriteLine("Special request entered. Press any key to continue.");
-        Console.ReadKey();
-        personalizeBouquet(personalizedBouquet);
-    }
-    void validateBouquet(Bouquet personalizedBouquet)
-    {
-        if (personalizedBouquet.Flowers.Count == 0 && personalizedBouquet.Accessories.Count == 0 || personalizedBouquet.Price == 0)
-        {
-            Console.WriteLine("You must choose at least one flower and one accessorie and enter a budget. Press any key to continue.");
-            Console.ReadKey();
-            personalizeBouquet(personalizedBouquet);
-        }
-        else
-        {
-            string insertQuery = "INSERT INTO Personalized (price_personalized, description_personalized, flowers_personalized, accessories_personalized)" +
-                "\r\nVALUES (@price_personalized, @description_personalized, @flowers_personalized, @accessories_personalized);";
-            using (MySqlCommand command = new(insertQuery, connection))
-            {
-                command.Parameters.AddWithValue("@price_personalized", personalizedBouquet.Price);
-                command.Parameters.AddWithValue("@description_personalized", personalizedBouquet.Description);
-                command.Parameters.AddWithValue("@flowers_personalized", personalizedBouquet.FlowersString);
-                command.Parameters.AddWithValue("@accessories_personalized", personalizedBouquet.AccessoriesString);
-                // debugRowsAffected(command);
-                Console.WriteLine("Bouquet validated. Press any key to continue.");
-            }
-            Console.ReadKey();
-            int idPersonalized;
-            string selectQuery = "SELECT id_personalized FROM personalized ORDER BY id_personalized DESC LIMIT 1;";
-            using (MySqlCommand command = new(selectQuery, connection))
-            {
-                idPersonalized = Convert.ToInt32(command.ExecuteScalar());
-            }
-            createOrder(true, idPersonalized);
-        }
-    }
-    void createOrder(bool isPersonalizedCommand, int idPersonalized = 0, int idStandard=0)
-    {
-        Console.Clear();
-        Client recipient = new();
-
-        Console.WriteLine("CREATE ORDER");
-        
-        Console.Write("Enter your shipping address. Press any key to continue.");
-        Console.ReadKey();
-        enterAddress(recipient, false);
-        int idAddresses = 0;
-        string selectQuery = "SELECT id_addresses FROM addresses ORDER BY id_addresses DESC LIMIT 1";
-        using (MySqlCommand command = new(selectQuery, connection))
-        {
-            idAddresses = Convert.ToInt32(command.ExecuteScalar());
-        }
-        
-        DateTime orderDateDateTime = DateTime.Now;
-        
-        DateTime deliveryDateDateTime = new();
-        enterDateTime(ref deliveryDateDateTime);
-        
-        Console.WriteLine("Enter a personnalized message for the recipient: ");
-        string message = Console.ReadLine();
-
-        string status = "";
-        bool inventoryVerified = false;
-        TimeSpan difference = deliveryDateDateTime - orderDateDateTime;
-        bool delayIsEnough = difference.TotalDays > 3;
-        if (isPersonalizedCommand)
-        {
-            // personnalized command to verify
-            status = "CPAV";
-        }
-        else if(!isPersonalizedCommand)
-        {
-            if (!delayIsEnough)
-            {
-                // command to verify
-                status = "VINV";
-            }
-            else
-            {
-                // completed command
-                inventoryVerified = true;
-            }
-        }
-        if (inventoryVerified)
-        {
-            // completed command
-            status = "CC";
-
-        }
-        int idClients=0;
-        selectQuery = "SELECT id_clients FROM clients WHERE email = @email";
-        using (MySqlCommand command = new(selectQuery, connection))
-        {
-            command.Parameters.AddWithValue("@email",email);
-            idClients = Convert.ToInt32(command.ExecuteScalar());
-        }
-        Console.Clear();
-        Console.WriteLine("CHOOSE SHOP");
-        selectQuery = "SELECT * FROM shops";
-        using (MySqlCommand command = new(selectQuery, connection))
-        {
-            MySqlDataReader reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                Console.WriteLine($"{reader["id_shops"]} - {reader["city_shops"]}");
-            }
-            reader.Close();
-        }
-        Console.Write("Enter the id of the shop you want to order from: ");
-        int idShops = Convert.ToInt32(Console.ReadLine());
-
-        if (isPersonalizedCommand)
-        {
-            string insertQuery = "INSERT INTO orders (id_addresses, order_date, delivery_date, message, status, id_clients, id_shops, id_personalized)" +
-                "VALUES (@id_addresses, @order_date, @delivery_date, @message, @status, @id_clients, @id_shops, @id_personalized)";
-            using (MySqlCommand command = new(insertQuery, connection))
-            {
-                command.Parameters.AddWithValue("@id_addresses", idAddresses);
-                command.Parameters.AddWithValue("@order_date", orderDateDateTime);
-                command.Parameters.AddWithValue("@delivery_date", deliveryDateDateTime);
-                command.Parameters.AddWithValue("@message", message);
-                command.Parameters.AddWithValue("@status", status);
-                command.Parameters.AddWithValue("@id_clients", idClients);
-                command.Parameters.AddWithValue("@id_shops", idShops);
-                command.Parameters.AddWithValue("@id_personalized", idPersonalized);
-                command.ExecuteNonQuery();
-            }
-        }
-        else
-        {
-            string insertQuery = "INSERT INTO orders (id_addresses, order_date, delivery_date, message, status, id_clients, id_shops, id_standard)" +
-                "VALUES (@id_addresses, @order_date, @delivery_date, @message, @status, @id_clients, @id_shops, @id_standard)";
-            using (MySqlCommand command = new(insertQuery, connection))
-            {
-                command.Parameters.AddWithValue("@id_addresses", idAddresses);
-                command.Parameters.AddWithValue("@order_date", orderDateDateTime);
-                command.Parameters.AddWithValue("@delivery_date", deliveryDateDateTime);
-                command.Parameters.AddWithValue("@message", message);
-                command.Parameters.AddWithValue("@status", status);
-                command.Parameters.AddWithValue("@id_clients", idClients);
-                command.Parameters.AddWithValue("@id_shops", idShops);
-                command.Parameters.AddWithValue("@id_standard", idStandard);
-                command.ExecuteNonQuery();
-            }
-        }
-        Console.WriteLine("Order created. Press any key to continue.");
-        Console.ReadKey();
-        menu();
-    }
-    void enterDateTime(ref DateTime deliveryDateDateTime)
-    {
-        Console.Clear();
-        Console.WriteLine("CREATE ORDER");
-        Console.Write("Enter your delivery date (YYYY-MM-DD): ");
-        string deliveryDate = Console.ReadLine();
-        try
-        {
-            deliveryDateDateTime = Convert.ToDateTime(deliveryDate);
-        }
-        catch (FormatException)
-        {
-            Console.WriteLine("Invalid date. You must enter a date in the format YYYY-MM-DD. Press any key to continue.");
-            Console.ReadKey();
-            enterDateTime(ref deliveryDateDateTime);
-        }
-    }
 }
-Console.WriteLine("Press any key to exit.");
-Console.ReadKey();
