@@ -476,7 +476,7 @@ using (MySqlConnection connection = sqlConnection)
         Console.Clear();
         Console.WriteLine("ORDER HISTORY");
         // // COMPLEX QUERY - join query
-        string selectQuery = "SELECT * FROM orders JOIN clients WHERE email = @email;";
+        string selectQuery = "SELECT * FROM orders JOIN clients ON orders.id_clients = clients.id_clients WHERE email = @email;";
         using (MySqlCommand command = new(selectQuery, connection))
         {
             command.Parameters.AddWithValue("@email", email);
@@ -496,7 +496,7 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Clear();
         Console.WriteLine("LOYALTY STATUS");
-        string selectQuery = "SELECT * FROM clients WHERE email = @email;";
+        string selectQuery = "SELECT \r\n                                                                  id_clients,\r\n                    first_name,\r\n                    last_name,\r\n                    CASE\r\n                        WHEN (\r\n                            SELECT COUNT(*)\r\n                            FROM Orders\r\n                            WHERE id_clients = Clients.id_clients\r\n                                AND MONTH(order_date) = MONTH(CURDATE())\r\n                        ) > 5 THEN 'OR'\r\n                        WHEN (\r\n                            SELECT COUNT(*)\r\n                            FROM Orders\r\n                            WHERE id_clients = Clients.id_clients\r\n                                AND MONTH(order_date) = MONTH(CURDATE())\r\n                        ) >= 1 THEN 'Bronze'\r\n                        ELSE 'Non défini'\r\n                    END AS loyalty\r\n                FROM Clients;\r\n";
         using (MySqlCommand command = new(selectQuery, connection))
         {
             command.Parameters.AddWithValue("@email", email);
@@ -504,7 +504,7 @@ using (MySqlConnection connection = sqlConnection)
             {
                 while (reader.Read())
                 {
-                    Console.WriteLine($"{reader["loyalty_status"]}"); // display loyalty status of this client
+                    Console.WriteLine($"{reader["loyalty"]}"); // display loyalty status of this client
                 }
             }
             Console.WriteLine("Press any key to continue.");
