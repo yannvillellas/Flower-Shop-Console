@@ -138,27 +138,6 @@ CREATE TABLE Addresses(
 )ENGINE=InnoDB;
 
 
-#------------------------------------------------------------
-# Table: Contains
-#------------------------------------------------------------
-
-CREATE TABLE Contains(
-        id_accessories  Int NOT NULL ,
-        id_personalized Int NOT NULL
-	,CONSTRAINT Contains_PK PRIMARY KEY (id_accessories,id_personalized)
-)ENGINE=InnoDB;
-
-
-#------------------------------------------------------------
-# Table: contain
-#------------------------------------------------------------
-
-CREATE TABLE contain(
-        id_flowers  Int NOT NULL ,
-        id_standard Int NOT NULL
-	,CONSTRAINT contain_PK PRIMARY KEY (id_flowers,id_standard)
-)ENGINE=InnoDB;
-
 ALTER TABLE Orders
 	ADD CONSTRAINT Orders_Clients0_FK
 	FOREIGN KEY (id_clients)
