@@ -802,7 +802,6 @@ using (MySqlConnection connection = sqlConnection)
             case "2":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - BEST CLIENT");
-                // TODO
                 string selectQuery2 = "SELECT c.id_clients, c.first_name, c.last_name, COUNT(o.id_orders) AS total_orders\r\nFROM Clients c\r\nINNER JOIN Orders o ON c.id_clients = o.id_clients\r\nWHERE MONTH(o.order_date) = MONTH(CURRENT_DATE())\r\nGROUP BY c.id_clients, c.first_name, c.last_name\r\nORDER BY total_orders DESC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery2, connection))
                 {
@@ -1008,7 +1007,6 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Clear();
         Console.WriteLine("EXPORT XML");
-        //TODO
         // export all clients in XML
         List<Client> clients = new();
         string selectQuery = "SELECT * FROM Clients";
@@ -1045,7 +1043,6 @@ using (MySqlConnection connection = sqlConnection)
     {
         Console.Clear();
         Console.WriteLine("EXPORT JSON");
-        //TODO
         // export all personalized bouquets in JSON
         List<Bouquet> personalizedBouquets = new();
         string selectQuery = "SELECT * FROM Personalized;";
