@@ -220,3 +220,6 @@ VALUES
 ('Pince à fleurs', 4.99, 75),
 ('Cache-pot en rotin', 9.99, 40),
 ("Sachet d'engrais pour fleurs", 6.99, 200);
+
+CREATE USER 'bozo'@'localhost' IDENTIFIED BY 'bozo';
+GRANT SELECT ON fleurs.* TO 'bozo'@'localhost';
