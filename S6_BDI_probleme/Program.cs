@@ -5,6 +5,8 @@ using System.Net;
 using MySql.Data.MySqlClient;
 using Org.BouncyCastle.Asn1;
 using S6_BDI_probleme;
+using System.Xml.Serialization;
+using System.Text.Json;
 
 string connectionStringAdmin = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=root;PASSWORD=root;"; // string connection for admin
 string connectionStringUser = "SERVER=localhost;PORT=3306;DATABASE=Fleurs;UID=bozo;PASSWORD=bozo;"; // string connection for user
@@ -473,6 +475,7 @@ using (MySqlConnection connection = sqlConnection)
         // use email as primary key to look for this client
         Console.Clear();
         Console.WriteLine("ORDER HISTORY");
+        // // COMPLEX QUERY - join query
         string selectQuery = "SELECT * FROM orders JOIN clients WHERE email = @email;";
         using (MySqlCommand command = new(selectQuery, connection))
         {
@@ -652,8 +655,8 @@ using (MySqlConnection connection = sqlConnection)
         Console.WriteLine("5. Add a new employee (admin)");
         Console.WriteLine("6. Display all employees (admin)");
         Console.WriteLine("7. Change the status of an order");
-        Console.WriteLine("8. Export in XML clients who orders in the last month");
-        Console.WriteLine("9. Export in JSON clients who didn't order in the last 6 months");
+        Console.WriteLine("8. Export in XML all clients");
+        Console.WriteLine("9. Export in JSON all personalized bouquets");
         Console.WriteLine("0. Return to menu");
         Console.Write("Enter your choice: ");
         string choice = Console.ReadLine();
@@ -778,6 +781,8 @@ using (MySqlConnection connection = sqlConnection)
             case "1":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - AVERAGE BOUQUET PRICE");
+                // select the average price of the bouquets
+                // COMPLEX QUERY - union query
                 string selectQuery = "SELECT AVG(average_price) AS overall_average_price\r\nFROM (\r\n  SELECT AVG(price_standard) AS average_price\r\n  FROM Standard\r\n  UNION ALL\r\n  SELECT AVG(price_personalized) AS average_price\r\n  FROM Personalized\r\n) AS subquery;";
                 using (MySqlCommand command = new(selectQuery, connection))
                 {
@@ -797,7 +802,8 @@ using (MySqlConnection connection = sqlConnection)
             case "2":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - BEST CLIENT");
-                string selectQuery2 = "SELECT id_clients, first_name, last_name\r\nFROM Clients\r\nWHERE MONTH(loyalty) = MONTH(CURRENT_DATE())\r\nORDER BY loyalty DESC\r\nLIMIT 1;";
+                // TODO
+                string selectQuery2 = "SELECT c.id_clients, c.first_name, c.last_name, COUNT(o.id_orders) AS total_orders\r\nFROM Clients c\r\nINNER JOIN Orders o ON c.id_clients = o.id_clients\r\nWHERE MONTH(o.order_date) = MONTH(CURRENT_DATE())\r\nGROUP BY c.id_clients, c.first_name, c.last_name\r\nORDER BY total_orders DESC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery2, connection))
                 {
                     using (MySqlDataReader reader = command.ExecuteReader())
@@ -819,6 +825,7 @@ using (MySqlConnection connection = sqlConnection)
             case "3":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - BEST SELLER");
+                // select the best seller for the standard bouquet
                 string selectQuery3 = "SELECT id_standard, name_bouquet\r\nFROM Standard\r\nORDER BY (SELECT COUNT(*) FROM Orders WHERE id_standard = Standard.id_standard) DESC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery3, connection))
                 {
@@ -840,6 +847,7 @@ using (MySqlConnection connection = sqlConnection)
             case "4":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - BEST SHOP");
+                // select the best shop (the one with the highest profit)
                 string selectQuery4 = "SELECT id_shops, city_shops\r\nFROM Shops\r\nORDER BY (\r\n    SELECT SUM(price_standard) \r\n    FROM Orders \r\n    JOIN Standard ON Orders.id_standard = Standard.id_standard \r\n    WHERE Orders.id_shops = Shops.id_shops\r\n) + (\r\n    SELECT SUM(price_personalized) \r\n    FROM Orders \r\n    JOIN Personalized ON Orders.id_personalized = Personalized.id_personalized \r\n    WHERE Orders.id_shops = Shops.id_shops\r\n) DESC\r\nLIMIT 1;\r\n";
                 using (MySqlCommand command = new(selectQuery4, connection))
                 {
@@ -860,6 +868,8 @@ using (MySqlConnection connection = sqlConnection)
             case "5":
                 Console.Clear();
                 Console.WriteLine("MENU STATS - WORST EXOTIC FLOWER");
+                // select the worst exotic flower (the one that has been ordered the least)
+                // COMPLEX QUERY - synchronized query
                 string selectQuery5 = "SELECT id_flowers, name_flowers\r\nFROM Flowers\r\nWHERE name_flowers = 'Ginger' OR name_flowers = 'Oiseaux du paradis'\r\nORDER BY (SELECT COUNT(*) FROM Orders JOIN Personalized ON Orders.id_personalized = Personalized.id_personalized WHERE Personalized.flowers_personalized LIKE CONCAT('%', Flowers.name_flowers, '%')) ASC\r\nLIMIT 1;";
                 using (MySqlCommand command = new(selectQuery5, connection))
                 {
@@ -999,14 +1009,87 @@ using (MySqlConnection connection = sqlConnection)
         Console.Clear();
         Console.WriteLine("EXPORT XML");
         //TODO
-        // export all clients who have ordered many times the last month
-        List<int> idClientsOrdersList = new();
-        
+        // export all clients in XML
+        List<Client> clients = new();
+        string selectQuery = "SELECT * FROM Clients";
+        using (MySqlCommand command = new(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
+                    string firstName = reader.GetString(1);
+                    string lastName = reader.GetString(2);
+                    string phone = reader.GetString(3);
+                    string email = reader.GetString(4);
+                    string password = reader.GetString(5);
+                    string loyalty = reader.GetString(6);
+                    bool admin = reader.GetBoolean(7);
+                    int idAddresses = reader.GetInt32(8);
+                    clients.Add(new Client(id, firstName, lastName, phone, email, password, loyalty, admin, idAddresses));
+                }
+            }
+        }
+        XmlSerializer serializer = new(typeof(List<Client>));
+        using (FileStream stream = File.Create("clients.xml"))
+        {
+            serializer.Serialize(stream, clients);
+        }
+        Console.WriteLine("Data exported in XML.");
+        Console.WriteLine("Press any key to continue.");
+        Console.ReadKey();
+        menuAdmin();
     }
     void exportJSON()
     {
         Console.Clear();
         Console.WriteLine("EXPORT JSON");
         //TODO
+        // export all personalized bouquets in JSON
+        List<Bouquet> personalizedBouquets = new();
+        string selectQuery = "SELECT * FROM Personalized;";
+        using (MySqlCommand command = new MySqlCommand(selectQuery, connection))
+        {
+            using (MySqlDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int id = reader.GetInt32(0);
+                    string description = reader.GetString(2);
+                    string Flowers = reader.GetString(3);
+                    List<int> flowers = new();
+                    foreach (string flower in Flowers.Split(','))
+                    {
+                        //try convert to int but it can be empty
+                        if (int.TryParse(flower, out int result))
+                        {
+                            flowers.Add(result);
+                        }
+                    }
+                    string Accessories = reader.GetString(4);
+                    List<int> accessories = new();
+                    foreach (string accessory in Accessories.Split(','))
+                    {
+                        //try convert to int but it can be empty
+                        if (int.TryParse(accessory, out int result))
+                        {
+                            accessories.Add(result);
+                        }
+                    }
+                    double price = reader.GetInt32(1);
+                    personalizedBouquets.Add(new Bouquet(id, description, price, flowers, accessories));
+                }
+            }
+        }
+        Console.WriteLine($"Found {personalizedBouquets.Count} personalized bouquets to export");
+        using (StreamWriter writer = new StreamWriter("personalizedBouquets.json"))
+        {
+            writer.Write(JsonSerializer.Serialize(personalizedBouquets));
+        }
+        Console.WriteLine("Data exported in JSON.");
+        Console.WriteLine("Press any key to continue.");
+        Console.ReadKey();
+        menuAdmin();
     }
 }

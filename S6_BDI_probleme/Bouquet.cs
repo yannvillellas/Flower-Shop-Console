@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace S6_BDI_probleme
 {
-    internal class Bouquet
+    public class Bouquet
     {
-        private string name;
+        private int id;
         private string description;
         private List<int> flowers;
         private List<int> accessories;
         private double price;
 
-        public Bouquet(string name, string description, double price, List<int> flowers, List<int> accessories)
+        public Bouquet(int id, string description, double price, List<int> flowers, List<int> accessories)
         {
-            this.name = name;
+            this.id = id;
             this.description = description;
             this.price = price;
             this.flowers = flowers ?? new List<int>();
@@ -25,16 +25,14 @@ namespace S6_BDI_probleme
         }
         public Bouquet()
         {
-            this.name = "";
             this.description = "";
             this.flowers = new List<int> { };
             this.accessories = new List<int> { };
         }
-
-        public string Name
+        public int Id
         {
-            get => name;
-            set => name = value;
+            get => id;
+            set => id = value;
         }
 
         public string Description
@@ -67,11 +65,6 @@ namespace S6_BDI_probleme
         {
             get => price;
             set => price = value;
-        }
-
-        public override string ToString()
-        {
-            return $"Name: {name}\nDescription: {description}\nflowers: {string.Join(", ", flowers)}\nAccessories: {string.Join(", ", accessories)}\nPrice: {price}";
         }
     }
 }

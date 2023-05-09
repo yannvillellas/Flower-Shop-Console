@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace S6_BDI_probleme
 {
-    internal class Client
+    public class Client
     {
+        private int id;
         private string firstName;
         private string lastName;
         private string phoneNumber;
@@ -16,13 +17,16 @@ namespace S6_BDI_probleme
         private string loyalty = "none";
         private bool admin = false;
         private int billingAddressID = 0;
-        public Client(string firstName, string lastName, string phoneNumber, string email, string password, int billingAddressID)
+        public Client(int id, string firstName, string lastName, string phoneNumber, string email, string password, string loyalty, bool admin, int billingAddressID)
         {
+            this.id = id;
             this.firstName = firstName;
             this.lastName = lastName;
             this.phoneNumber = phoneNumber;
             this.email = email;
             this.password = password;
+            this.loyalty = loyalty;
+            this.admin = admin;
             this.billingAddressID = billingAddressID;
         }
         public Client(string email)
@@ -42,6 +46,12 @@ namespace S6_BDI_probleme
             this.password = "";
         }
 
+        public int Id
+        {
+            get => id;
+            set => id = value;
+        }
+        
         public string FirstName
         {
             get => firstName;
