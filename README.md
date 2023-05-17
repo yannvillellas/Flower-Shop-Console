@@ -4,10 +4,13 @@ Welcome to the Flower Shop Console Interface! This project was developed as part
 
 ## Screenshots
 
-![Screenshot (1)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/9f656f7c-1a6c-4a31-869b-4d7a0e533403)
-![Screenshot (2)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/ec537b80-9a64-4168-97f0-a8d25555abf8)
-![Screenshot (3)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/0243f9dc-a522-47e1-991b-f100122b309c)
-![Screenshot (4)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/d22d8e09-107c-43f1-b2bd-dc839a3983f7)
+![Screenshot(1)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/7e1a6be2-b0c1-4a8d-9b4e-59a39fd4b9cb)
+
+![Screenshot(2)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/5ecc7544-9362-442a-9a47-b7f2011d52d9)
+
+![Screenshot(3)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/1510b817-36fe-4460-be6e-1a9af7bce49a)
+
+![Screenshot(4)](https://github.com/yannvillellas/Flower-Shop-Console-Interface/assets/95702481/e1c280a0-0518-4adf-ab94-41ada3e1f5b3)
 
 ## Authors
 
